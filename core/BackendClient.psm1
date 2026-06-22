@@ -152,7 +152,7 @@ function Invoke-InProcessBackendRequest {
     try {
         switch ($operation) {
             "sql.select" {
-                Import-Module (Join-Path $PSScriptRoot "..\resource-proxy\providers\Sql.Provider.psm1") -Force
+                Import-Module (Join-Path $PSScriptRoot "..\db-proxy\providers\Sql.Provider.psm1") -Force
                 $server = [string](Get-ObjectPropertyValue -Object $arguments -PropertyName "server")
                 $schema = [string](Get-ObjectPropertyValue -Object $arguments -PropertyName "schema")
                 $query = [string](Get-ObjectPropertyValue -Object $arguments -PropertyName "query")

@@ -172,7 +172,7 @@ function Convert-BackendResponseToToolResult {
     $source = [string](Get-ObjectPropertyValue -Object $errorPayload -PropertyName "source" -DefaultValue "resource_proxy")
     $details = Get-ObjectPropertyValue -Object $errorPayload -PropertyName "details"
     $recoveryHint = switch ($code) {
-        "backend_unavailable" { "Start resource-proxy/scripts/Start-ResourceProxyServer.ps1 in a separate PowerShell window." }
+        "backend_unavailable" { "Start db-proxy/scripts/Start-DbProxyServer.ps1 in a separate PowerShell window." }
         "inprocess_disabled" { "Switch backend.mode to http with the external proxy running, or explicitly enable dev/test fallback." }
         default { "" }
     }
