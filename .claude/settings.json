@@ -1,0 +1,56 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__powershell-mcp-facade",
+      "mcp__acumatica-knowledge",
+      "mcp__jira-internal",
+      "mcp__wiki-internal",
+      "Bash(git status:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(git diff:*)",
+      "Bash(git blame:*)",
+      "Bash(git branch:*)",
+      "Bash(git rev-parse:*)",
+      "Bash(git merge-base:*)",
+      "Bash(git ls-files:*)",
+      "Bash(git ls-remote:*)",
+      "Bash(git for-each-ref:*)",
+      "Bash(git remote:*)",
+      "Bash(git fetch:*)",
+      "Bash(git worktree list:*)",
+      "Bash(git cat-file:*)",
+      "Bash(git describe:*)",
+      "Bash(git -C code status:*)",
+      "Bash(git -C code log:*)",
+      "Bash(git -C code show:*)",
+      "Bash(git -C code diff:*)",
+      "Bash(git -C code blame:*)",
+      "Bash(git -C code branch:*)",
+      "Bash(git -C code rev-parse:*)",
+      "Bash(git -C code merge-base:*)",
+      "Bash(git -C code ls-files:*)",
+      "Bash(git -C code ls-remote:*)",
+      "Bash(git -C code for-each-ref:*)",
+      "Bash(git -C code remote:*)",
+      "Bash(git -C code fetch:*)",
+      "Bash(git -C code worktree list:*)",
+      "Bash(git -C code cat-file:*)",
+      "Bash(git -C code describe:*)"
+    ],
+    "deny": []
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "mcp__powershell-mcp-facade__sql",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/hooks/Guard-Sql.ps1"
+          }
+        ]
+      }
+    ]
+  }
+}

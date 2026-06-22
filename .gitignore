@@ -1,0 +1,29 @@
+# Local product checkout.
+/code/
+
+# Local investigation and handoff notes.
+/.session-notes/
+/session-notes/
+
+# Claude Code local overrides and machine-specific settings.
+.claude/settings.local.json
+.claude/*.local.json
+
+# Local environment and secrets.
+.env
+.env.*
+!.env.example
+
+# Logs and temporary files.
+*.log
+*.tmp
+*.temp
+/.tmp/
+/tmp/
+/temp/
+
+# Editor and OS metadata.
+/.vscode/
+/.idea/
+.DS_Store
+Thumbs.db
