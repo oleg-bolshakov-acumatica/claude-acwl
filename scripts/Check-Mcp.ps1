@@ -11,8 +11,8 @@ param(
 #   - the stdio server (powershell-mcp-facade) gets an initialize + tools/list
 #     smoke test; the returned tool catalog is verified against the expected
 #     trimmed tool set (sql.select, server.describe_capabilities).
-#   - http servers (acumatica-knowledge, jira-internal, wiki-internal) are
-#     reported only; their connectivity/OAuth is handled by Claude Code on use.
+#   - http servers (jira-internal, wiki-internal) are reported only; their
+#     connectivity/OAuth is handled by Claude Code on use.
 #   - the local db-proxy SQL backend gets an informational GET /status probe.
 
 Set-StrictMode -Version Latest

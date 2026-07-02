@@ -20,25 +20,22 @@ Use repository-approved context paths:
 - Pick the source-specific path directly: `jira-access` for Jira, `wiki-access` for Wiki, and `local-change-access` for a change set.
 - Read `docs/ARCHITECTURE_RULES.md` and `docs/REFACTORINGS.md`.
 - Read `docs/BUSINESS_MODEL.md`, `docs/DATABASE_MODEL.md`, `docs/FEATURE_IMPLEMENTATION_PATTERNS.md`, or source code only when they can change the implementability conclusion.
-- Use `acumatica-knowledge-access` as optional reference discovery for DAC fields/relationships, OData, Contract-Based REST API, Generic Inquiry examples, and Help Wiki behavior when those facts can change consistency or implementability risk.
 - Use read-only SQL only when concrete data evidence is necessary; do not use SQL for speculative design.
 
 Do not use direct REST, browser scraping, ad hoc provider scripts, or write operations for Jira/Wiki/DB context.
-If `acumatica-knowledge` is unavailable, continue the risk analysis and mention the limitation only when the missing reference context could materially affect the verdict.
 
 ## Workflow
 
 1. Identify the spec source, Jira issue, product version, status, update date, and whether the page is draft/approved.
 2. Extract normative requirements from examples, discussion, UI mockups, and comments. Treat unresolved comments as first-class ambiguity.
 3. Restate the task in business terms: what user-visible behavior changes, what source-of-truth data is involved, and what is explicitly out of scope.
-4. Use `acumatica-knowledge-access` only when exact DAC/API/GI/OData/Help Wiki reference facts can test whether the proposed model or behavior conflicts with existing Acumatica structures or documented behavior. Open exact objects/pages after search before relying on them; do not block if unavailable.
-5. Check internal consistency:
+4. Check internal consistency:
    - undefined states or terms, such as "approved", "released", "current", "historical", or "reliable";
    - conflicting inclusion/exclusion rules;
    - requirements that imply persistence while another section says no referential integrity or no database impact;
    - future-extensibility statements that conflict with the proposed current data model;
    - upgrade, correction, reversal, deletion, import, API, and rebalancing behavior that is omitted or inconsistent.
-6. Check Acumatica implementability:
+5. Check Acumatica implementability:
    - prefer source-of-truth data over duplicated persisted state;
    - avoid DB queries and heavy business evaluation in `RowSelected`;
    - place validation in field events, row persisting, workflow actions, release/posting, or processing flows as appropriate;
@@ -46,8 +43,8 @@ If `acumatica-knowledge` is unavailable, continue the risk analysis and mention 
    - preserve graph extensibility with virtual methods or graph extensions where customization may be needed;
    - check normal processing and recalculation/rebuild parity;
    - check API, import, correction, reversal, delete, and long-operation paths when the spec creates derived values or relationships.
-7. Separate facts from hypotheses. Do not call a concern confirmed unless it is supported by the spec, comments, docs, Acumatica Knowledge reference facts, code, or read-only data.
-8. Produce concrete clarification questions or spec wording changes when a concern can be resolved by tightening the spec.
+6. Separate facts from hypotheses. Do not call a concern confirmed unless it is supported by the spec, comments, docs, code, or read-only data.
+7. Produce concrete clarification questions or spec wording changes when a concern can be resolved by tightening the spec.
 
 ## Risk Heuristics
 

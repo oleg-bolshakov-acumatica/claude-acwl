@@ -125,8 +125,6 @@ For material changes, check the likely exposed surfaces:
 - workflow action availability and server-side action preconditions;
 - customizations that may override graph methods or depend on public fields and projections.
 
-Use Acumatica Knowledge as optional reference discovery for OData, Contract-Based REST API, Generic Inquiry, and Help Wiki facts when local source does not show the exposed surface clearly. If that reference source is unavailable, document the limitation only when the missing exposure information can affect design or validation.
-
 Do not expand the implementation slice merely to update every possible consumer. Separate confirmed required changes from exposed-surface risks, deferred validation, and out-of-scope compatibility work.
 
 ## 9. UI Computed Values and Cache Strategy
