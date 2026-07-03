@@ -49,25 +49,6 @@ function ConvertTo-Hashtable {
     return $InputObject
 }
 
-function Get-McpProviderConfig {
-    [CmdletBinding()]
-    param(
-        [string]$Path = (Join-Path (Split-Path -Parent $PSScriptRoot) "config/providers.config.json")
-    )
-
-    if (-not (Test-Path -LiteralPath $Path)) {
-        throw "Provider configuration file was not found: $Path"
-    }
-
-    $configObject = Get-Content -Raw -LiteralPath $Path | ConvertFrom-Json
-    $config = ConvertTo-Hashtable -InputObject $configObject
-    if ($null -eq $config) {
-        throw "Provider configuration file is empty: $Path"
-    }
-
-    return $config
-}
-
 function Get-McpServerConfig {
     [CmdletBinding()]
     param(
@@ -87,4 +68,4 @@ function Get-McpServerConfig {
     return $config
 }
 
-Export-ModuleMember -Function Get-McpProviderConfig, Get-McpServerConfig
+Export-ModuleMember -Function Get-McpServerConfig
