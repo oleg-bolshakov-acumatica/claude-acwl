@@ -16,7 +16,6 @@
       "Bash(git ls-remote:*)",
       "Bash(git for-each-ref:*)",
       "Bash(git remote:*)",
-      "Bash(git fetch:*)",
       "Bash(git worktree list:*)",
       "Bash(git cat-file:*)",
       "Bash(git describe:*)",
@@ -32,7 +31,6 @@
       "Bash(git -C code ls-remote:*)",
       "Bash(git -C code for-each-ref:*)",
       "Bash(git -C code remote:*)",
-      "Bash(git -C code fetch:*)",
       "Bash(git -C code worktree list:*)",
       "Bash(git -C code cat-file:*)",
       "Bash(git -C code describe:*)"

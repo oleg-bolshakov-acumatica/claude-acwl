@@ -95,8 +95,8 @@ sources at a path other than `code/`, just tell the agent the path.
 Code-dependent workflows (review, bugfix, feature development, source-code analysis) and
 the read-only git commands pre-approved in `.claude/settings.json` expect the default
 `code/` location. Pull requests are inspected over this local repository: a PR id/URL is
-resolved through the remote's Stash PR refs (`refs/pull-requests/<id>/from`), or you can
-hand the agent a branch name or commit range directly — there is no Bitbucket/PR service.
+first mapped to its branch or commit range through Jira Development data, or you can
+hand the agent a branch name or commit range directly — there is no remote PR service.
 
 ## Workflows (mode skills)
 
@@ -107,6 +107,7 @@ mode router in `CLAUDE.md` select it:
 - `acumatica-code-review` — read-only review of a branch/change set/diff.
 - `acumatica-spec-verification` — verify an implementation against a functional spec.
 - `acumatica-small-bugfix` — minimal low-risk defect correction.
+- `acumatica-bug-backport` — approval-gated local Service Pack/Patch backport branch and commit from an existing fix.
 - `acumatica-feature-development` — iterative feature implementation from a spec.
 - `functional-spec-risk-analysis` — pre-implementation spec risk analysis.
 
@@ -166,11 +167,13 @@ dumps) out of the main window:
 ## Safety model
 
 This workspace is read-only by default. Read-only MCP servers and read-only git commands
-are pre-approved in `.claude/settings.json`. A `PreToolUse` hook
-(`scripts/hooks/Guard-Sql.ps1`) rejects any non-`SELECT` SQL as defense-in-depth (the
-resource-proxy backend is the primary enforcer). The write-capable modes
-(`acumatica-small-bugfix`, `acumatica-feature-development`) are intentionally *not*
-pre-approved and follow the approval rules in their skills and in `CLAUDE.md`.
+are pre-approved in `.claude/settings.json`; every non-read-only git operation (including
+`git fetch`) requires explicit confirmation per `acumatica-git-workflow`. A `PreToolUse`
+hook (`scripts/hooks/Guard-Sql.ps1`) rejects any non-`SELECT` SQL as defense-in-depth (the
+`db-proxy` backend is the primary enforcer). The write-capable modes
+(`acumatica-small-bugfix`, `acumatica-bug-backport`, `acumatica-feature-development`) are
+intentionally *not* pre-approved and follow the approval rules in their skills and in
+`CLAUDE.md`.
 
 ## Local SQL backend (db-proxy)
 

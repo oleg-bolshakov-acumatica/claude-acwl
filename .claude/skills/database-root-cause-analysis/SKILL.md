@@ -1,6 +1,6 @@
 ---
 name: database-root-cause-analysis
-description: Use this skill for high-level read-only database analysis of Acumatica Support Requests when root cause is not confirmed and SQL evidence can confirm, refute, or narrow hypotheses. It extracts backup/environment parameters, checks version/tenant context, builds tenant-scoped SELECT plans, traces document chains, and interprets database evidence using the lower-level database-access skill.
+description: Perform high-level read-only database analysis for Acumatica Support Requests when SQL evidence can confirm, refute, or narrow root-cause hypotheses. Extract environment/version/tenant context, build tenant-scoped SELECT plans, trace document chains, and interpret evidence through database-access.
 ---
 
 # Database Root-Cause Analysis Skill
@@ -9,7 +9,7 @@ description: Use this skill for high-level read-only database analysis of Acumat
 
 Use this skill to turn support-case facts and hypotheses into safe, targeted SQL evidence.
 
-This is a high-level diagnostic workflow. It uses the lower-level `database-access` skill for actual read-only SQL retrieval and relies on `docs/DATABASE_MODEL.md` when Projects/Construction table relationships or join patterns matter.
+This is a high-level diagnostic workflow. It uses the lower-level `database-access` skill for actual read-only SQL retrieval and relies on `docs/DATABASE_MODEL.md`, local source, and linked Wiki pages when Projects/Construction table relationships, join patterns, or documented behavior matter.
 
 ## Trigger Point
 
@@ -130,11 +130,12 @@ Start from hypotheses, not from broad table browsing.
 1. Name the current hypothesis and the fact that would confirm or refute it.
 2. Identify primary documents, entities, or setup records from Jira/comments/related items.
 3. Use `docs/DATABASE_MODEL.md` for Projects/Construction table relationships, join keys, and process flows when useful.
-4. Query the smallest reliable record set first.
-5. Trace related records outward only when each step changes the conclusion.
-6. Compare expected vs actual persisted values.
-7. If possible, compare with a known-good document or earlier/later related transaction.
-8. After every query, state whether the result supports, weakens, refutes, or does not affect the hypothesis.
+4. Use local source, metadata queries, local docs, and linked Wiki pages as schema preflight when exact DAC fields, keys, relationships, or documented behavior can reduce guesswork.
+5. Query the smallest reliable record set first.
+6. Trace related records outward only when each step changes the conclusion.
+7. Compare expected vs actual persisted values.
+8. If possible, compare with a known-good document or earlier/later related transaction.
+9. After every query, state whether the result supports, weakens, refutes, or does not affect the hypothesis.
 
 Show the SQL query first, then summarize the result and interpretation.
 

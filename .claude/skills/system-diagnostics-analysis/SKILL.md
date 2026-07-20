@@ -1,6 +1,6 @@
 ---
 name: system-diagnostics-analysis
-description: Use this skill for targeted Acumatica system diagnostics during Support Request analysis when version/build context, customization packages, upgrade chronology, schema discovery, or source-branch selection can materially affect root cause, workaround, or validation confidence. Uses read-only database checks through database-access and branch/schema evidence from the local source checkout when needed.
+description: Run targeted Acumatica system diagnostics when version/build, customization, upgrade chronology, schema, or source-branch context can change the cause, workaround, branch choice, or confidence. Use read-only database checks and local source/schema evidence.
 ---
 
 # System Diagnostics Analysis Skill
@@ -13,7 +13,7 @@ This skill covers version/build interpretation, source-branch derivation, custom
 
 Keep this skill separate from `docs/DATABASE_MODEL.md`. `DATABASE_MODEL.md` describes Projects/Construction application entities, relationships, document flows, and domain-specific tables. This skill describes environment, version, customization, upgrade, source-branch, and schema-discovery checks.
 
-Treat the current backup metadata and version-specific source `DatabaseModel` as higher-confidence evidence for exact system table shape.
+Use local docs, source `DatabaseModel`, and database metadata checks when DAC/schema or Help Wiki facts can reduce ambiguity. Treat the current backup metadata and version-specific source `DatabaseModel` as high-confidence evidence for exact system table shape.
 
 ## Trigger Point
 
@@ -177,7 +177,7 @@ Use schema discovery when:
 - a suspected table may be absent in the backup;
 - customization may have added columns/tables.
 
-When the suspected object is a standard DAC, confirm version- or tenant-specific shape with SQL metadata or source code.
+When the suspected object is a standard DAC, check local source for fields and relationships, then confirm version- or tenant-specific shape with SQL metadata when it matters.
 
 Examples:
 

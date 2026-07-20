@@ -1,6 +1,6 @@
 ---
 name: functional-spec-risk-analysis
-description: Use this skill when Claude must analyze an Acumatica functional specification before implementation for requirement contradictions, ambiguity, missing lifecycle rules, source-of-truth conflicts, and technical implementability against Acumatica architecture rules and best practices. Trigger on requests to review a Wiki/Jira functional spec itself, assess whether requirements are consistent or feasible, identify risky wording, challenge proposed data models, or prepare clarification questions before development or QA planning.
+description: Analyze an Acumatica Jira/Wiki functional specification before implementation for contradictions, ambiguity, lifecycle gaps, source-of-truth conflicts, and architecture feasibility. Use for spec risk review, data-model challenge, implementability assessment, or clarification questions before development or QA planning.
 ---
 
 # Functional Spec Risk Analysis
@@ -29,13 +29,14 @@ Do not use direct REST, browser scraping, ad hoc provider scripts, or write oper
 1. Identify the spec source, Jira issue, product version, status, update date, and whether the page is draft/approved.
 2. Extract normative requirements from examples, discussion, UI mockups, and comments. Treat unresolved comments as first-class ambiguity.
 3. Restate the task in business terms: what user-visible behavior changes, what source-of-truth data is involved, and what is explicitly out of scope.
-4. Check internal consistency:
+4. Use local source, endpoint definitions, Generic Inquiry definitions, reports, and linked Wiki documentation when exact DAC/API/GI/OData/Help Wiki facts can test whether the proposed model or behavior conflicts with existing Acumatica structures or documented behavior.
+5. Check internal consistency:
    - undefined states or terms, such as "approved", "released", "current", "historical", or "reliable";
    - conflicting inclusion/exclusion rules;
    - requirements that imply persistence while another section says no referential integrity or no database impact;
    - future-extensibility statements that conflict with the proposed current data model;
    - upgrade, correction, reversal, deletion, import, API, and rebalancing behavior that is omitted or inconsistent.
-5. Check Acumatica implementability:
+6. Check Acumatica implementability:
    - prefer source-of-truth data over duplicated persisted state;
    - avoid DB queries and heavy business evaluation in `RowSelected`;
    - place validation in field events, row persisting, workflow actions, release/posting, or processing flows as appropriate;
@@ -43,8 +44,8 @@ Do not use direct REST, browser scraping, ad hoc provider scripts, or write oper
    - preserve graph extensibility with virtual methods or graph extensions where customization may be needed;
    - check normal processing and recalculation/rebuild parity;
    - check API, import, correction, reversal, delete, and long-operation paths when the spec creates derived values or relationships.
-6. Separate facts from hypotheses. Do not call a concern confirmed unless it is supported by the spec, comments, docs, code, or read-only data.
-7. Produce concrete clarification questions or spec wording changes when a concern can be resolved by tightening the spec.
+7. Separate facts from hypotheses. Do not call a concern confirmed unless it is supported by the spec, comments, docs, code, or read-only data.
+8. Produce concrete clarification questions or spec wording changes when a concern can be resolved by tightening the spec.
 
 ## Risk Heuristics
 
