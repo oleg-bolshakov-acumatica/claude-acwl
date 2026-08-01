@@ -13,6 +13,8 @@ The goal is to identify likely product code paths, safeguards, state transitions
 
 Use Jira, local docs, code search, SQL evidence, related items, linked Wiki pages, endpoint definitions, Generic Inquiry definitions, and reports to identify likely source entry points or affected paths.
 
+Use `acumatica-development-guidance` as optional repository guidance when architecture, repository layout, terminology, screen references, build/startup, testing, or validation articles can narrow the source entry point or reproduction plan. Read exact article resources and keep current branch code and local docs authoritative. If unavailable, continue unless the missing guidance materially affects confidence.
+
 Use `acumatica-git-workflow` for read-only branch/commit/PR discovery and its approval boundary for any Git operation needed to inspect the correct version.
 
 When static analysis identifies a concrete defect anchor and the analysis needs to know which prior feature, ChangeRequest, PR, or commit introduced it, use `root-cause-origin-analysis` for the git archaeology. Do not treat the last `git blame` touch as origin without checking whether it actually introduced the defective logic.
@@ -111,6 +113,8 @@ Start from the strongest clues already collected:
 - customization names only as context unless custom source is available.
 
 When those clues are incomplete, search local source, local definitions, linked Wiki pages, endpoint definitions, Generic Inquiry definitions, and reports to discover exact DACs, fields, related DACs, API/GI entities, and Help Wiki behavior before deeper source inspection.
+
+When the owning subsystem, repository location, screen terminology, or local validation path is unclear, optionally use `acumatica-development-guidance` before broad source searches. Apply only articles matching the selected repository/project and compare them with current files before relying on them.
 
 Use `rg` first:
 

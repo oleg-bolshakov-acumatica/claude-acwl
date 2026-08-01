@@ -48,11 +48,12 @@ Declared in `.mcp.json` and connected automatically when the workspace is truste
 | Server | Transport | Purpose |
 | --- | --- | --- |
 | `powershell-mcp-facade` | stdio | Read-only SQL only (`sql.select`). Backend: local `db-proxy` at `127.0.0.1:8765`. |
+| `acumatica-development-guidance` | http | Repository-specific development guidance articles for `code`/`tests` work. |
 | `jira-internal` | http | Internal Jira MCP — primary Jira read path (`jira_get_issue`, `jira_search`). |
 | `wiki-internal` | http | Internal Confluence/Wiki MCP — primary Wiki read path (`confluence_get_page`, ...). |
 
 The SQL facade requires its `db-proxy` backend to be running (see `db-proxy/README.md`).
-Both HTTP servers require OAuth on first use and the Acumatica corporate network with
+All three HTTP servers require OAuth on first use and the Acumatica corporate network with
 private access enabled.
 
 ## Getting started
@@ -71,7 +72,7 @@ private access enabled.
    scripts/Check-Mcp.ps1 -SkipSmokeTest   # config-only check
    scripts/Smoke-Test-Sql.ps1       # exercise sql.select end-to-end (needs the backend)
    ```
-3. In Claude Code, run `/mcp` to confirm all three servers are connected. If any are
+3. In Claude Code, run `/mcp` to confirm all four servers are connected. If any are
    missing, treat it as a configuration or backend-availability issue (see `CLAUDE.md`),
    not a reason to bypass the approved paths.
 
@@ -149,7 +150,7 @@ and let the mode router pick it. Jira items are shown as `AC-XXXXX` and pull req
 
 Lower-level access/analysis skills (`jira-access`, `wiki-access`, `local-change-access`,
 `database-access`, `jira-similar-search`, `related-items-analysis`, `source-code-analysis`,
-`migration-script-consistency-review`,
+`acumatica-development-guidance`, `migration-script-consistency-review`,
 `system-diagnostics-analysis`, `database-root-cause-analysis`, `jira-comment-drafting`,
 `acumatica-session-notes`) are used by the mode skills and can also be invoked directly.
 

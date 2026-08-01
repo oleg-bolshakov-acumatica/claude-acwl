@@ -21,6 +21,7 @@ Use repository-approved context paths:
 - Read `docs/ARCHITECTURE_RULES.md` and `docs/REFACTORINGS.md`.
 - Read `docs/BUSINESS_MODEL.md`, `docs/DATABASE_MODEL.md`, `docs/FEATURE_IMPLEMENTATION_PATTERNS.md`, or source code only when they can change the implementability conclusion.
 - Use read-only SQL only when concrete data evidence is necessary; do not use SQL for speculative design.
+- Use `acumatica-development-guidance` for repository-specific architecture, conventions, limitations, pitfalls, testing, or validation guidance when it can change feasibility or delivery risk; do not treat guidance articles as requirements.
 
 Do not use direct REST, browser scraping, ad hoc provider scripts, or write operations for Jira/Wiki/DB context.
 
@@ -29,7 +30,7 @@ Do not use direct REST, browser scraping, ad hoc provider scripts, or write oper
 1. Identify the spec source, Jira issue, product version, status, update date, and whether the page is draft/approved.
 2. Extract normative requirements from examples, discussion, UI mockups, and comments. Treat unresolved comments as first-class ambiguity.
 3. Restate the task in business terms: what user-visible behavior changes, what source-of-truth data is involved, and what is explicitly out of scope.
-4. Use local source, endpoint definitions, Generic Inquiry definitions, reports, and linked Wiki documentation when exact DAC/API/GI/OData/Help Wiki facts can test whether the proposed model or behavior conflicts with existing Acumatica structures or documented behavior.
+4. Use local source, endpoint definitions, Generic Inquiry definitions, reports, and linked Wiki documentation when exact DAC/API/GI/OData/Help Wiki facts can test whether the proposed model or behavior conflicts with existing Acumatica structures or documented behavior. Separately use `acumatica-development-guidance` when exact repository articles can test architecture, convention, delivery, testing, or validation feasibility.
 5. Check internal consistency:
    - undefined states or terms, such as "approved", "released", "current", "historical", or "reliable";
    - conflicting inclusion/exclusion rules;

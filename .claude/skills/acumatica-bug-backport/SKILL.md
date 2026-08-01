@@ -13,6 +13,8 @@ Finish with a local backport branch and commit. Do not create or modify Jira ite
 
 Use `jira-access` only to read the two Bug keys, summaries, links, target/fix version, and source Jira Development data. Map a source PR id/URL to its branch or commit range through Jira Development data, then use `local-change-access` to inspect the exact source change set. Use `acumatica-git-workflow` for all Git discovery, branch creation, formatting preservation, staging, commit, and approval rules.
 
+Use `acumatica-development-guidance` only after the exact target branch and source fix are resolved, and only for applicable repository conventions, build, testing, or validation guidance. It does not determine the target branch, source commits, backport policy, or approval boundary.
+
 ## Resolve Inputs
 
 Establish before changing Git state:

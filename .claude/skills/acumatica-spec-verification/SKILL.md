@@ -18,6 +18,7 @@ Use repository-approved paths only:
 - Use `local-change-access` for implementation evidence in a specific change set, via git over the local `code/` repository (branch name or commit/ref range; a bare PR id/URL must be mapped to a branch via Jira Development data first).
 - Use `migration-script-consistency-review` when changed files include `WebSites/Pure/DB/MSSQL/*.sql`.
 - Use `database-access` only when read-only SQL evidence can change requirement interpretation or verification risk.
+- Use `acumatica-development-guidance` for repository-specific architecture, conventions, testing, validation, and review guidance that can improve coverage or risk assessment; do not treat guidance as specification evidence.
 
 Do not use direct REST, provider modules, browser access, or ad hoc scripts for Jira, Wiki, source changes, or SQL when the approved path is available (Jira→jira-internal, Wiki→wiki-internal, source changes→git over local `code/`, SQL→sql.select facade).
 

@@ -2,6 +2,7 @@
   "permissions": {
     "allow": [
       "mcp__powershell-mcp-facade",
+      "mcp__acumatica-development-guidance",
       "mcp__jira-internal",
       "mcp__wiki-internal",
       "Bash(git status:*)",

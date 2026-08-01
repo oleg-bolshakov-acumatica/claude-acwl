@@ -21,6 +21,7 @@ Use repository-approved paths only:
 - Use `database-access` only for read-only SQL evidence that can change the conclusion.
 - Use `system-diagnostics-analysis` when version/build, customization, upgrade chronology, schema discovery, or source-branch selection can materially affect review confidence.
 - Use `migration-script-consistency-review` when changed files include `WebSites/Pure/DB/MSSQL/*.sql`.
+- Use `acumatica-development-guidance` for repository-specific architecture, conventions, pitfalls, testing, validation, and review guidance relevant to the classified change shape and changed subsystems.
 
 Do not use direct REST, provider modules, browser access, or ad hoc scripts for Jira, Wiki, source changes, or SQL when the approved path is available (Jira->jira-internal, Wiki->wiki-internal, source changes->git over local `code/`, SQL->sql.select facade).
 

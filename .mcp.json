@@ -10,6 +10,10 @@
         "scripts/Start-McpServer.ps1"
       ]
     },
+    "acumatica-development-guidance": {
+      "type": "http",
+      "url": "https://dokploy.acumatica.com/ai-kb/mcp"
+    },
     "jira-internal": {
       "type": "http",
       "url": "https://jmcp.acumatica.com/mcp"

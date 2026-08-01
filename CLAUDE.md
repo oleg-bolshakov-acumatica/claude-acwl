@@ -7,13 +7,14 @@ This is a Claude Code workspace tailored for Acumatica ERP application engineeri
 The project MCP servers are declared natively in `.mcp.json` at the workspace root. Claude Code reads that file and connects the servers automatically when the workspace is trusted. The fixed project MCP server set for this workspace is:
 
 - `powershell-mcp-facade` — read-only **SQL only** facade (`sql.select`) over the local `db-proxy` backend (stdio). It exposes no Jira, Wiki, or PR tools.
+- `acumatica-development-guidance` — repository-specific Acumatica development guidance articles for `code` and `tests` work (remote streamable HTTP).
 - `jira-internal` — internal Jira HTTP MCP server; the primary path for Jira reads (`jira_get_issue`, `jira_search`).
 - `wiki-internal` — internal Confluence/Wiki HTTP MCP server; the primary path for Wiki reads (`confluence_get_page`, `confluence_get_comments`, and related read tools).
 
 If `/mcp` does not show all expected servers, treat it as an MCP configuration or backend-availability problem, not a reason to bypass the approved paths:
 
 - `powershell-mcp-facade` is a stdio facade over the local `db-proxy` backend at `http://127.0.0.1:8765` (see `db-proxy/`). `scripts/Start-Claude.ps1` auto-starts `db-proxy` before the session. The server can fail SQL tool calls when that backend is not running; handle such failures as backend availability issues.
-- `jira-internal` and `wiki-internal` are remote HTTP MCP servers that require OAuth on first use and are only reachable from the Acumatica corporate network with private access enabled.
+- `acumatica-development-guidance`, `jira-internal`, and `wiki-internal` are remote HTTP MCP servers that require OAuth on first use and are only reachable from the Acumatica corporate network with private access enabled.
 
 Run `scripts/Check-Mcp.ps1` to validate the MCP configuration, smoke-test the local SQL facade, and probe the `db-proxy` backend. Do not manually launch the facade as a bootstrap step; let Claude Code manage the declared servers. The `db-proxy` backend is started automatically by `scripts/Start-Claude.ps1`.
 
@@ -30,6 +31,9 @@ Use only the designated repository skills for external context:
 - `acumatica-git-workflow` for Jira-related branch/commit discovery and approval-gated Git mutations.
 - `root-cause-origin-analysis` for establishing which prior feature/ChangeRequest/PR/commit and its Jira item introduced a defect, via read-only git archaeology (`blame`, `log -S`/`-G`, `show`) over `code/` mapped to Jira.
 - `database-access` for read-only SQL evidence through the `powershell-mcp-facade` `sql.select` tool.
+- `acumatica-development-guidance` for repository-specific architecture, conventions, pitfalls, build/startup, testing, validation, review, Modern UI, and TestSDK guidance.
+
+`acumatica-development-guidance` is optional repository guidance. Use it when indexed `code`, `testportal`, shared, or `testsdk` articles can improve implementation, review, startup, build, testing, or validation decisions. Open the exact returned article resource before relying on details. Local instructions, current Jira/Wiki requirements, approved local docs, current-branch code/tests/build files, and runtime evidence remain higher priority. If it is unavailable, continue with those sources and mention the limitation only when it materially affects confidence.
 
 Do not bypass these paths with direct REST, provider modules, ad hoc scripts, browser scraping, or direct SQL tooling when the repository skill path is available.
 Do not request approval for read-only SQL needed for diagnosis.
@@ -118,6 +122,7 @@ This principle governs the secondary mechanics of git, build, and write executio
 - Run `jira-similar-search` only when explicit context is insufficient and likely similar Bugs or Support Requests can change the diagnosis or conclusion.
 - Retrieve relevant Wiki links through `wiki-access`; treat footer comments, inline comments, and comment resolution state as first-class context.
 - Use `database-access` only for read-only diagnosis or verification. Use `SELECT` only. Use `COMPANYID` for tenant-partitioned tables when identified. Do not treat cross-tenant matches as confirmation.
+- Use `acumatica-development-guidance` when repository-specific architecture, conventions, pitfalls, build, testing, or review guidance can change the implementation plan, review criteria, or validation path. Treat it as guidance and report conflicts with local instructions or current code.
 - Use `system-diagnostics-analysis` only when environment, product version, branch choice, customizations, upgrade history, or schema discovery can change the conclusion, implementation plan, or validation.
 - When changed files include `WebSites/Pure/DB/MSSQL/*.sql`, use `migration-script-consistency-review`. The `MSSQL` directory name is historical; determine database applicability from script tags. Treat `ALTER`, `CREATE`, and `DROP` in migration scripts as suspicious.
 - When analyzing a bug (Support Request or bugfix), establish the root-cause origin with `root-cause-origin-analysis` — the introducing feature/ChangeRequest/PR/commit and its Jira item — before forming a fix plan, whenever a defect anchor exists. It is mandatory to attempt and to report the result; when the origin cannot be established, state that explicitly with the reason. Inability to establish origin does not by itself block a fix or the analysis.
@@ -147,6 +152,7 @@ Before finalizing:
 - correct high-level mode skill selected;
 - Jira/branch/range/repository/spec context resolved or limitation stated;
 - required low-level skills used for Jira, Wiki, local change set, Git workflow, SQL, migration scripts, and similarity search when those sources or operations are used;
+- repository development guidance was consulted when it could materially improve implementation, review, or validation, and any conflict with higher-priority local evidence was reported;
 - explicit links considered before similarity search;
 - changed migration scripts reviewed with `migration-script-consistency-review`, or absence stated when relevant to review/verification;
 - facts and hypotheses separated;
