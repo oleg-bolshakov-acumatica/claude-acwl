@@ -116,12 +116,14 @@ When those clues are incomplete, search local source, local definitions, linked 
 
 When the owning subsystem, repository location, screen terminology, or local validation path is unclear, optionally use `acumatica-development-guidance` before broad source searches. Apply only articles matching the selected repository/project and compare them with current files before relying on them.
 
+Use `docs/CODE_NAVIGATION.md` to turn a clue into a starting path before broad searches: screen ID to classic page or Modern UI screen folder to graph type; DAC or table to the module `DAC/` folder and `DatabaseModel`; a cross-module symptom to the owning feature's `GraphExtensions/` folder; unexplained framework behavior to the platform map. The map is generated from one revision, so confirm each path exists on the inspected branch before relying on it.
+
 Use `rg` first:
 
 ```powershell
 rg -n "PM301000|Project Transactions|exact error text" code
-rg -n "class .*Entry|PXAction|PXOverride|RowPersisting|FieldDefaulting" code\WebSites code\Pure code\DatabaseModel
-rg -n "PMTran|AccountGroupID|Billable|CostCodeID|TaskID" code\WebSites code\Pure code\DatabaseModel
+rg -n "class .*Entry|PXAction|PXOverride|RowPersisting|FieldDefaulting" code\WebSites\Pure\PX.Objects code\DatabaseModel
+rg -n "PMTran|AccountGroupID|Billable|CostCodeID|TaskID" code\WebSites\Pure\PX.Objects code\DatabaseModel
 ```
 
 Prefer exact strings before broad class or table searches. If exact strings are localized or generated, search resource files, constants, exception keys, and UI labels.
@@ -136,7 +138,7 @@ Follow the product flow from UI entry point to persisted data:
 4. Event handlers: inspect `FieldDefaulting`, `FieldUpdated`, `RowSelected`, `RowPersisting`, `RowUpdated`, and `RowPersisted`.
 5. Workflow: inspect state transitions, action availability, and guards when the issue depends on status or action order.
 6. Services/helpers: inspect shared methods that generate related documents or transactions.
-7. Schema reference: use `DatabaseModel` / `Pure/DatabaseModel` for version-specific tables and columns when docs are insufficient.
+7. Schema reference: use `DatabaseModel/Application/<Module>/<Table>.sql` (and `DatabaseModel/System/` for platform tables) for version-specific tables and columns when docs are insufficient.
 8. Tests/specs: inspect tests when they exist for the suspected flow, especially around regressions and edge cases.
 
 For Projects/Construction cases, pay special attention to:
@@ -219,10 +221,10 @@ Keep excerpts focused, usually 5-25 lines. Use several excerpts for a larger met
 
 Do not cite only a source link or file path when source code is material evidence for the conclusion.
 
-Example shape:
+Example shape — citation format only. The path and method are real, but the excerpt, line range, and finding below are illustrative; never reuse them as evidence.
 
 ````md
-Code evidence: `code/PX.Objects/PM/PMRegisterEntry.cs`, `ReleaseDocument`, lines 421-438, branch `2025r201`.
+Code evidence: `code/WebSites/Pure/PX.Objects/PM/RegisterEntry.cs`, `ReleaseDocument`, lines 636-654, branch `2025r201`.
 
 ```csharp
 protected virtual void ReleaseDocument(PMRegister doc)

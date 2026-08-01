@@ -80,6 +80,9 @@ Local docs are authoritative context. Mode skills decide which docs must be load
 - `docs/DATABASE_MODEL.md`
 - `docs/FEATURE_DEVELOPMENT_WORKFLOW.md`
 - `docs/FEATURE_IMPLEMENTATION_PATTERNS.md`
+- `docs/CODE_NAVIGATION.md`
+
+`docs/CODE_NAVIGATION.md` is a repository routing map — where to look, not what the code does. Use it before broad searches to locate modules, graphs, DACs, UI, migrations, no-code configuration, and platform mechanisms. Never cite it as evidence for a finding: confirm the actual file on the inspected branch and cite that file. `docs/ARCHITECTURE_RULES.md` takes precedence for placement of new code. The map is generated from one branch and revision, so on other product branches verify that referenced projects and folders exist and report material differences.
 
 This workspace is intentionally tailored for the Projects/Construction team. PM/CN/PJ domain context is expected and should be used when relevant rather than hidden.
 

@@ -37,6 +37,7 @@ Read these only when they can affect the review:
 - `docs/BUSINESS_MODEL.md`
 - `docs/DATABASE_MODEL.md`
 - source files outside the git diff hunks
+- `docs/CODE_NAVIGATION.md` to locate related code outside the git diff hunks, tell application code from platform code, and identify the paths a change should have covered
 
 Use `docs/acuminator` as an on-demand diagnostic reference during the Acuminator diagnostic pass. Do not bulk-load the directory. Open only the exact `PX####.md` files that match suspicious changed-code patterns, and open `docs/acuminator/DiagnosticSuppression.md` only when reviewing or proposing Acuminator suppressions.
 

@@ -48,6 +48,8 @@ Skip or keep minimal when:
 
 Origin analysis needs a concrete code anchor — the file, line(s), condition, BQL, DAC attribute, event handler, migration statement, or logic that produces the symptom. This normally comes from prior diagnosis (`source-code-analysis` or the bugfix diagnosis step).
 
+When the anchor is known by symptom rather than by file, use `docs/CODE_NAVIGATION.md` to resolve it to a concrete path before `blame` or `log -S`. Blame needs a path that exists on the inspected branch, and the map is generated from one revision: verify existence first, and when the file was renamed cross the rename with `git log --follow` or `git blame -C`.
+
 If no anchor exists and cannot be derived, do not guess an origin. Report **Not established — no defect anchor** and state what would be needed (a reproduced code path, a stack frame, an exact failing line).
 
 ## Repository and Branch Resolution

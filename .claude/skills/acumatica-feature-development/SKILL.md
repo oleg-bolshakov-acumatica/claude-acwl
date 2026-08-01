@@ -34,6 +34,8 @@ Read and follow:
 
 Read `docs/FEATURE_IMPLEMENTATION_PATTERNS.md` when the iteration includes business logic, posting/recalculation paths, reports, projections, currency/base amounts, UI computed values, or customization-sensitive placement.
 
+Use `docs/CODE_NAVIGATION.md` to locate the existing code the feature must touch and to enumerate the data paths that need parity: entry/defaulting, validation, persist, release/posting, recalculation, inquiry/report/projection, workflow, API/GI, migration, and tests. Keep `docs/ARCHITECTURE_RULES.md` authoritative for where new files belong, and confirm map paths on the feature branch.
+
 Read domain, database, and source references only when they can change interpretation, design, branch choice, or validation.
 
 If a required workflow doc is missing, continue with this skill and report the limitation.

@@ -37,6 +37,8 @@ Read these only when they can affect branch choice, diagnosis, implementation ri
 - `docs/BUSINESS_MODEL.md`
 - `docs/DATABASE_MODEL.md`
 
+Use `docs/CODE_NAVIGATION.md` to locate the defect's module, layer, and likely files before searching, and to tell application code from platform code. Confirm the paths on the fix branch; the map is generated from one revision.
+
 ## Repository and Branch Rules
 
 Use `acumatica-git-workflow` to resolve the repository, discover existing task branches and PR context, and prepare or resume a `bugfix` branch. Base branch is mandatory. A new branch must use the defined bugfix naming rule and a freshly fetched stable remote ref. Fetch, switch, branch creation, staging, commit, push, and every other non-read-only Git operation require explicit user confirmation.

@@ -39,6 +39,8 @@ Read and apply:
 
 Read domain, database, diagnostics, or source files outside the git diff hunks only when they affect requirement interpretation or implementation risk.
 
+Use `docs/CODE_NAVIGATION.md` when coverage verification needs paths outside the git diff hunks: it maps where each data path of the affected module lives — entry, release/posting, inquiry/report, API/GI, workflow, migration, and tests. Verify the paths on the reviewed branch.
+
 ## Verification Scope Classification
 
 Classify the verification before deep inspection and size the coverage effort accordingly:
