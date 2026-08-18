@@ -1,8 +1,12 @@
-# PreToolUse guard for the powershell-mcp-facade SQL tool.
+# PreToolUse guard for the powershell-mcp-facade SQL tools.
 #
-# Defense-in-depth only: the resource-proxy backend already enforces read-only
-# SQL. This hook gives Claude immediate, local feedback if a non-SELECT query is
+# Defense-in-depth only: the db-proxy backend already enforces read-only SQL.
+# This hook gives Claude immediate, local feedback if a non-SELECT query is
 # ever attempted, before it reaches the facade.
+#
+# The matcher also covers sql.list_databases / sql.search_schema /
+# sql.describe_table. Those carry no `query` argument, so this guard allows them
+# and leaves their bounds to the provider.
 #
 # Contract (Claude Code PreToolUse hook):
 #   - stdin  : JSON with { tool_name, tool_input: { query, ... }, ... }
@@ -34,9 +38,11 @@ try {
         exit 0
     }
 
-    # Strip line and block comments so commented-out keywords do not trigger.
+    # Strip comments and single-quoted literals so commented-out or quoted
+    # keywords do not trigger. The provider does the same before its own check.
     $stripped = [regex]::Replace($query, "(?s)/\*.*?\*/", " ")
     $stripped = [regex]::Replace($stripped, "(?m)--.*$", " ")
+    $stripped = [regex]::Replace($stripped, "'(?:[^']|'')*'", " ")
     $trimmed = $stripped.Trim()
 
     # A read-only query must begin with SELECT or a WITH (CTE) clause.
@@ -50,6 +56,12 @@ try {
     $match = [regex]::Match($stripped, "(?i)$forbidden")
     if ($match.Success) {
         [Console]::Error.WriteLine("Blocked: database-access is read-only. Detected a state-changing or administrative SQL keyword ('$($match.Value)'). Use SELECT-only diagnostic queries.")
+        exit 2
+    }
+
+    # SELECT ... INTO materializes a new table; the provider rejects it too.
+    if ($stripped -match "(?is)\bINTO\b") {
+        [Console]::Error.WriteLine("Blocked: database-access is read-only. 'SELECT ... INTO' creates a table. Return the rows instead.")
         exit 2
     }
 

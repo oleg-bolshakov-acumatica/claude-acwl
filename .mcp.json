@@ -21,6 +21,10 @@
     "wiki-internal": {
       "type": "http",
       "url": "https://wmcp.acumatica.com/mcp"
+    },
+    "bitbucket-internal": {
+      "type": "http",
+      "url": "https://mcpsgw.acumatica.com/bitbucket"
     }
   }
 }

@@ -5,6 +5,7 @@
       "mcp__acumatica-development-guidance",
       "mcp__jira-internal",
       "mcp__wiki-internal",
+      "mcp__bitbucket-internal",
       "Bash(git status:*)",
       "Bash(git log:*)",
       "Bash(git show:*)",
@@ -35,6 +36,9 @@
       "Bash(git -C code worktree list:*)",
       "Bash(git -C code cat-file:*)",
       "Bash(git -C code describe:*)"
+    ],
+    "ask": [
+      "mcp__bitbucket-internal__whoami"
     ],
     "deny": []
   },

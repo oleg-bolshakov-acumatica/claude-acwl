@@ -2,7 +2,7 @@
 
 A self-contained Claude Code workspace for Acumatica ERP application engineering on the
 Projects/Construction team. This is the **light** variant: external context comes from the
-corporate `jira-internal` and `wiki-internal` MCP servers,
+corporate `jira-internal`, `wiki-internal`, and `bitbucket-internal` MCP servers,
 read-only SQL through a local PowerShell facade, and git over a local product checkout.
 It provides workflow skills for support analysis, code review, spec verification,
 bugfixing, and feature development.
@@ -13,14 +13,16 @@ workspace.
 
 ## What "light" changes vs. the pro workspace (`claude-acw`)
 
-- The `powershell-mcp-facade` is trimmed to **read-only SQL only** (`sql.select`). It no
-  longer exposes Jira, Wiki, Bitbucket, or `context.get_reference` tools.
+- The `powershell-mcp-facade` is trimmed to **read-only SQL only**: bounded select, database
+  discovery, and schema metadata. It no longer exposes Jira, Wiki, Bitbucket, or
+  `context.get_reference` tools.
 - Jira and Wiki are read through the corporate **`jira-internal`** and **`wiki-internal`**
   HTTP MCP servers (now the primary path, not a fallback).
 - **RAG Memory is removed** (no `rag-memory` server, no `rag-proxy` backend, no RAG skills).
-- **Bitbucket/PR access is removed**; a change set is inspected with **git over the local
-  `code/` repository** via the `local-change-access` skill.
-- The resource-proxy backend for SQL (`127.0.0.1:8765`) and its protocol are unchanged.
+- Pull requests are read through the corporate **`bitbucket-internal`** HTTP MCP server via
+  the `bitbucket-pr-access` skill; branches and commit ranges are inspected with **git over
+  the local `code/` repository** via the `local-change-access` skill.
+- The `db-proxy` backend for SQL (`127.0.0.1:8765`) keeps the same HTTP protocol.
 
 ## Layout
 
@@ -47,13 +49,14 @@ Declared in `.mcp.json` and connected automatically when the workspace is truste
 
 | Server | Transport | Purpose |
 | --- | --- | --- |
-| `powershell-mcp-facade` | stdio | Read-only SQL only (`sql.select`). Backend: local `db-proxy` at `127.0.0.1:8765`. |
+| `powershell-mcp-facade` | stdio | Read-only SQL only (`sql.select`, `sql.list_databases`, `sql.search_schema`, `sql.describe_table`). Backend: local `db-proxy` at `127.0.0.1:8765`. |
 | `acumatica-development-guidance` | http | Repository-specific development guidance articles for `code`/`tests` work. |
 | `jira-internal` | http | Internal Jira MCP — primary Jira read path (`jira_get_issue`, `jira_search`). |
 | `wiki-internal` | http | Internal Confluence/Wiki MCP — primary Wiki read path (`confluence_get_page`, ...). |
+| `bitbucket-internal` | http | Internal read-only Bitbucket MCP — pull-request metadata, changed files, diffs, comments, commits. |
 
 The SQL facade requires its `db-proxy` backend to be running (see `db-proxy/README.md`).
-All three HTTP servers require OAuth on first use and the Acumatica corporate network with
+All four HTTP servers require OAuth on first use and the Acumatica corporate network with
 private access enabled.
 
 ## Getting started
@@ -68,11 +71,14 @@ private access enabled.
    directory, and start `db-proxy/Start.ps1` manually.)
 2. Validate the MCP configuration and smoke-test the local SQL facade:
    ```powershell
-   scripts/Check-Mcp.ps1            # full check (needs the local SQL backend running)
+   scripts/Check-Mcp.ps1                  # full check (needs the local SQL backend running)
    scripts/Check-Mcp.ps1 -SkipSmokeTest   # config-only check
-   scripts/Smoke-Test-Sql.ps1       # exercise sql.select end-to-end (needs the backend)
+   scripts/Smoke-Test-Mcp-Contract.ps1    # assert the facade's SQL tool catalog
+   scripts/Smoke-Test-Sql.ps1             # exercise sql.select end-to-end (needs the backend)
+   scripts/Smoke-Test-Sql-Discovery.ps1   # exercise the database/schema metadata tools
+   scripts/Test-SqlProvider.ps1           # provider-level safety and parameter unit checks
    ```
-3. In Claude Code, run `/mcp` to confirm all four servers are connected. If any are
+3. In Claude Code, run `/mcp` to confirm all five servers are connected. If any are
    missing, treat it as a configuration or backend-availability issue (see `CLAUDE.md`),
    not a reason to bypass the approved paths.
 
@@ -95,9 +101,9 @@ sources at a path other than `code/`, just tell the agent the path.
 
 Code-dependent workflows (review, bugfix, feature development, source-code analysis) and
 the read-only git commands pre-approved in `.claude/settings.json` expect the default
-`code/` location. Pull requests are inspected over this local repository: a PR id/URL is
-first mapped to its branch or commit range through Jira Development data, or you can
-hand the agent a branch name or commit range directly — there is no remote PR service.
+`code/` location. A pull request can be inspected directly through `bitbucket-internal`
+from its URL or repository coordinates; local source analysis, git history, and anything
+outside the PR diff still need a branch or commit range in `code/`.
 
 ## Workflows (mode skills)
 
@@ -115,8 +121,9 @@ mode router in `CLAUDE.md` select it:
 ### Example requests
 
 You can name the skill explicitly (`/acumatica-code-review ...`) or just describe the task
-and let the mode router pick it. Jira items are shown as `AC-XXXXX` and pull requests as
-`PR-XXXXX`; substitute real ids.
+and let the mode router pick it. Jira items are shown as `AC-XXXXX`; substitute real ids.
+Reference a pull request by its Bitbucket URL (or project/repo/id coordinates) — a bare
+numeric PR id is not resolvable on its own.
 
 **`acumatica-support-request-analysis`**
 - `Analyze Support Request AC-XXXXX — find the root cause and a safe workaround.`
@@ -124,12 +131,12 @@ and let the mode router pick it. Jira items are shown as `AC-XXXXX` and pull req
 - `Draft a Jira comment for AC-XXXXX with the root cause and a SQL detection script.`
 
 **`acumatica-code-review`**
-- `Review PR-XXXXX.`
-- `Review PR-XXXXX against the intent of AC-XXXXX.`
+- `Review <bitbucket-pr-url>.`
+- `Review <bitbucket-pr-url> against the intent of AC-XXXXX.`
 - `Review branch feature/AC-XXXXX-2026r250, focus on migration scripts and regressions.`
 
 **`acumatica-spec-verification`**
-- `Verify PR-XXXXX against the functional spec in AC-XXXXX.`
+- `Verify <bitbucket-pr-url> against the functional spec in AC-XXXXX.`
 - `Build a requirement coverage matrix for AC-XXXXX before QA.`
 - `Does branch feature/AC-XXXXX-2026r250 fully implement the Wiki spec linked in AC-XXXXX?`
 
@@ -148,7 +155,8 @@ and let the mode router pick it. Jira items are shown as `AC-XXXXX` and pull req
 - `Review the Wiki spec for AC-XXXXX and prepare clarification questions before development.`
 - `AC-XXXXX proposes a new persisted field for visibility — how risky is that for upgrades?`
 
-Lower-level access/analysis skills (`jira-access`, `wiki-access`, `local-change-access`,
+Lower-level access/analysis skills (`jira-access`, `wiki-access`, `bitbucket-pr-access`,
+`local-change-access`,
 `database-access`, `jira-similar-search`, `related-items-analysis`, `source-code-analysis`,
 `acumatica-development-guidance`, `migration-script-consistency-review`,
 `system-diagnostics-analysis`, `database-root-cause-analysis`, `jira-comment-drafting`,
@@ -163,7 +171,7 @@ dumps) out of the main window:
 - `acumatica-review-track` — one code-review dimension per instance (spec / architecture / migration / test / domain).
 - `acumatica-sql-diagnostics` — tenant-scoped read-only SQL evidence.
 - `acumatica-source-investigator` — static source analysis and git archaeology in `code/`.
-- `acumatica-context-digest` — condensed Jira/Wiki/related-item digests.
+- `acumatica-context-digest` — condensed Jira/Wiki/PR/related-item digests.
 
 ## Safety model
 
@@ -179,9 +187,11 @@ intentionally *not* pre-approved and follow the approval rules in their skills a
 ## Local SQL backend (db-proxy)
 
 The SQL path is served by `db-proxy/`, a light SQL-only backend that keeps the original
-resource-proxy HTTP contract (`POST /invoke` with `operation=sql.select`, `GET /status`)
-but drops the Jira/Wiki/Bitbucket providers. It binds `127.0.0.1:8765`, matching
+resource-proxy HTTP contract (`POST /invoke`, `GET /status`) but drops the
+Jira/Wiki/Bitbucket providers. Beyond `sql.select` it serves `sql.list_databases`,
+`sql.search_schema`, and `sql.describe_table`. It binds `127.0.0.1:8765`, matching
 `config/server.config.json`, so the facade connects unchanged. Read-only `SELECT` is
 enforced in `db-proxy/providers/Sql.Provider.psm1` and again by the `Guard-Sql.ps1` hook.
-See `db-proxy/README.md` for details. It still depends on `SQLPS`/`Invoke-Sqlcmd`;
-modernizing that is a possible follow-up.
+See `db-proxy/README.md` for details. SQL runs through `System.Data.SqlClient` under the
+current Windows identity, so `SQLPS`/`Invoke-Sqlcmd` is no longer required and no SQL
+credentials are stored in this workspace.

@@ -10,9 +10,11 @@ param(
 #   - .mcp.json is parsed and every declared server is reported.
 #   - the stdio server (powershell-mcp-facade) gets an initialize + tools/list
 #     smoke test; the returned tool catalog is verified against the expected
-#     trimmed tool set (sql.select, server.describe_capabilities).
-#   - http servers (acumatica-development-guidance, jira-internal, wiki-internal)
-#     are reported only; their connectivity/OAuth is handled by Claude Code on use.
+#     trimmed tool set (the read-only sql.* tools plus
+#     server.describe_capabilities).
+#   - http servers (acumatica-development-guidance, jira-internal, wiki-internal,
+#     bitbucket-internal) are reported only; their connectivity/OAuth is handled
+#     by Claude Code on use.
 #   - the local db-proxy SQL backend gets an informational GET /status probe.
 
 Set-StrictMode -Version Latest
@@ -20,6 +22,7 @@ $ErrorActionPreference = "Stop"
 
 $projectRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 $mcpPath = Join-Path $projectRoot ".mcp.json"
+$expectedDbProxyBackendVersion = "db-proxy-0.2.0"
 
 if (-not (Test-Path -LiteralPath $mcpPath)) {
     Write-Error "Missing MCP configuration: .mcp.json was not found at the workspace root."
@@ -80,7 +83,12 @@ if (Test-Path -LiteralPath $dbProxyConfigPath) {
 
     try {
         $dbStatus = Invoke-RestMethod -Uri ("{0}/status" -f $dbProxyBaseUrl) -Method Get -TimeoutSec 3 -ErrorAction Stop
-        Write-Host ("[db   ] {0,-22} -> /status OK (backendVersion={1})" -f "db-proxy", $dbStatus.result.backendVersion)
+        $backendVersion = [string]$dbStatus.result.backendVersion
+        Write-Host ("[db   ] {0,-22} -> /status OK (backendVersion={1})" -f "db-proxy", $backendVersion)
+        if ($backendVersion -ne $expectedDbProxyBackendVersion) {
+            Write-Host ("         WARNING: expected {0}. A stale backend is holding {1}; stop that process and restart db-proxy." -f `
+                $expectedDbProxyBackendVersion, $dbProxyBaseUrl)
+        }
     }
     catch {
         Write-Host ("[db   ] {0,-22} -> /status not reachable on {1} (start db-proxy/Start.ps1 or use scripts/Start-Claude.ps1)" -f "db-proxy", $dbProxyBaseUrl)
@@ -88,7 +96,13 @@ if (Test-Path -LiteralPath $dbProxyConfigPath) {
 }
 
 # The powershell-mcp-facade now exposes exactly these tools.
-$expectedFacadeTools = @("sql.select", "server.describe_capabilities")
+$expectedFacadeTools = @(
+    "sql.select",
+    "sql.list_databases",
+    "sql.search_schema",
+    "sql.describe_table",
+    "server.describe_capabilities"
+)
 
 $failures = 0
 foreach ($property in $config.mcpServers.PSObject.Properties) {
@@ -140,7 +154,7 @@ foreach ($property in $config.mcpServers.PSObject.Properties) {
 
 if ($failures -gt 0) {
     Write-Host ""
-    Write-Host "$failures stdio facade(s) failed the smoke test. Check that the resource-proxy (127.0.0.1:8765) backend is running."
+    Write-Host "$failures stdio facade(s) failed the smoke test. Check that the db-proxy (127.0.0.1:8765) backend is running."
     exit 1
 }
 
