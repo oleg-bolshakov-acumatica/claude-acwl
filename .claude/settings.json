@@ -37,9 +37,7 @@
       "Bash(git -C code cat-file:*)",
       "Bash(git -C code describe:*)"
     ],
-    "ask": [
-      "mcp__bitbucket-internal__whoami"
-    ],
+    "ask": [],
     "deny": []
   },
   "hooks": {

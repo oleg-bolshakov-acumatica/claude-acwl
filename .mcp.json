@@ -24,7 +24,7 @@
     },
     "bitbucket-internal": {
       "type": "http",
-      "url": "https://mcpsgw.acumatica.com/bitbucket"
+      "url": "https://mcp-gateway.acumatica.com/bitbucket"
     }
   }
 }
