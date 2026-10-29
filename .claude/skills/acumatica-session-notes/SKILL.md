@@ -41,6 +41,18 @@ Use lower-case, hyphenated, purpose-based file names. Do not include dates in se
 
 If no Jira item is known, do not invent one. Keep the handoff context in the final response unless the user provides a stable identifier or explicitly asks for a note outside the Jira-item layout.
 
+### Support duty run summaries
+
+For `acumatica-support-duty`, use the explicitly authorized run-level layout:
+
+```text
+.session-notes/support-duty/<YYYY-MM-DD_HHmmssZ>/summary.md
+```
+
+The directory represents actual UTC run start time; add a suffix if needed to avoid overwriting a run. This exception permits timestamps in run directory names, not in individual SR note file names. Resolve all-vs-backlog scope before creating a run. Store only summary metadata, queue rows, actions and links here, without per-SR subdirectories or duplicated investigation evidence.
+
+Individual quick reviews remain `.session-notes/<JiraItemId>/support-duty-review.md`. Before creating one, read relevant existing notes; reuse substantive investigations instead of rerunning them. Carry original review date, queue update watermark when available, and stale/unknown freshness into the run summary. A folder with unrelated files or a failed retrieval stub is not an existing completed review. Preserve detailed investigations and user edits.
+
 ## File Selection
 
 Before creating a note, check whether `.session-notes/<JiraItemId>/` already exists.

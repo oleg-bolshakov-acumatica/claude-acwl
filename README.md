@@ -111,11 +111,14 @@ Invoke the matching skill (e.g. `/acumatica-code-review`) or describe the task a
 mode router in `CLAUDE.md` select it:
 
 - `acumatica-support-request-analysis` — end-to-end Support Request root-cause/workaround analysis.
+- `acumatica-support-duty` — active Projects/Construction SR queue report (`scope=all` or `scope=backlog`) with one quick review per unreviewed SR and note reuse.
 - `acumatica-code-review` — read-only review of a branch/change set/diff.
 - `acumatica-spec-verification` — verify an implementation against a functional spec.
+- `acumatica-feature-final-review` — read-only final functional and technical/architectural review of a feature after iterative development.
 - `acumatica-small-bugfix` — minimal low-risk defect correction.
 - `acumatica-bug-backport` — approval-gated local Service Pack/Patch backport branch and commit from an existing fix.
 - `acumatica-feature-development` — iterative feature implementation from a spec.
+- `acumatica-technical-specification` — concise technical design document from the functional spec and verified code; approval-gated Wiki publication.
 - `functional-spec-risk-analysis` — pre-implementation spec risk analysis.
 
 ### Example requests
@@ -176,11 +179,12 @@ dumps) out of the main window:
 ## Safety model
 
 This workspace is read-only by default. Read-only MCP servers and read-only git commands
-are pre-approved in `.claude/settings.json`; every non-read-only git operation (including
+are pre-approved in `.claude/settings.json` (Git branch/remote commands only in their read-only forms; `wiki-internal` write tools are listed under `ask` so they always prompt); every non-read-only git operation (including
 `git fetch`) requires explicit confirmation per `acumatica-git-workflow`. A `PreToolUse`
 hook (`scripts/hooks/Guard-Sql.ps1`) rejects any non-`SELECT` SQL as defense-in-depth (the
 `db-proxy` backend is the primary enforcer). The write-capable modes
-(`acumatica-small-bugfix`, `acumatica-bug-backport`, `acumatica-feature-development`) are
+(`acumatica-small-bugfix`, `acumatica-bug-backport`, `acumatica-feature-development`) and Wiki
+publication in `acumatica-technical-specification` are
 intentionally *not* pre-approved and follow the approval rules in their skills and in
 `CLAUDE.md`.
 

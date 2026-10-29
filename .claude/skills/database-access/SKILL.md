@@ -35,4 +35,4 @@ Show the query, summarize the returned rows, and state whether the result suppor
 
 ## Failure Handling
 
-If access is unavailable, report the missing server/database/credential context or backend failure and its effect. If the facade is missing or `db-proxy` is unavailable, treat it as MCP/backend availability; run `scripts/Check-Mcp.ps1` when useful. Do not auto-start or bypass the configured path unless the user explicitly requests the startup action.
+If access is unavailable, report the missing server/database/credential context or backend failure and its effect. If the facade is missing or `db-proxy` is unavailable, treat it as MCP/backend availability; run `scripts/Check-Mcp.ps1` when useful, then reconnect the server through `/mcp` or restart Claude Code from the workspace root with `scripts/Start-Claude.ps1`. Do not auto-start or bypass the configured path unless the user explicitly requests the startup action.

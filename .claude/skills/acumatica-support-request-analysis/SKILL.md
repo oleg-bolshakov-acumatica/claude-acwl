@@ -9,6 +9,8 @@ description: Analyze Acumatica Projects/Construction Support Requests for root c
 
 Analyze Projects/Construction Support Requests to find a practical workaround and the most likely or confirmed root cause. Also answer explicit Jira requests such as fix confirmation or data checks. PM/CN/PJ context is the default unless the item clearly belongs elsewhere.
 
+For a batch support duty queue report with quick reviews and note reuse, use `acumatica-support-duty` instead. It resolves all-vs-backlog scope and performs one pass without database or source-code analysis; this skill remains the detailed individual-SR workflow.
+
 All searches, diagnostics, and code checks must serve the current Jira question, workaround, or root-cause goal. Skip work that cannot change the conclusion; disclose a skipped normally-useful step only when it affects confidence.
 
 ## Approved Context Paths
