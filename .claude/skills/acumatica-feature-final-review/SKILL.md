@@ -19,16 +19,16 @@ For a large feature, once the review target, specification, and baseline are res
 
 ## Establish the Review Target
 
-1. Resolve the final feature branch or PR, effective baseline, and intended review state. Distinguish a committed PR from the current local implementation. For a local feature review, account for its staged, unstaged, and new files while separating unrelated user changes.
-2. Identify the feature's complete implementation across the relevant commits or PRs. Use history when it explains a design change, incomplete replacement, or abandoned approach; distinguish historical attempts from delivered behavior.
-3. Retrieve the latest complete functional specification, accepted amendments, and material comments. When a QA Acceptance issue list or equivalent artifact is available or supplied, inspect the complete relevant set, including dispositions and material discussion. Its absence is not a prerequisite failure: review the specification and final implementation without inventing QA history. Separate approved, superseded, deferred, and unresolved decisions. Use session notes for navigation, then confirm their conclusions against current sources.
+1. Resolve the final branch or PR, effective baseline, and exact SHA of the implementation commit under review. For a PR, record the head SHA actually reviewed. When uncommitted changes are in scope, account for staged, unstaged, and new files, separate unrelated changes, and report the result as preliminary until the reviewed implementation can be identified by commit.
+2. Identify the complete delivered feature across the relevant commits or PRs. Use history when it explains a design change, incomplete replacement, or abandoned approach.
+3. Apply the [requirements source and version rules](../../../docs/FEATURE_DEVELOPMENT_WORKFLOW.md#functional-requirements-and-source-versions) to the latest effective requirements, including accepted amendments. Record each type, exact URL or other locator, and analyzed version. Compare with the last analyzed version in the feature notes when available and explicitly notify the user of changes. Record conflicts and their disposition. Review available QA Acceptance evidence and confirm its relevance to the current requirements and implementation.
 4. Read `docs/ARCHITECTURE_RULES.md` and `docs/REFACTORINGS.md`. Use `docs/CODE_NAVIGATION.md` before broad source discovery. Consult business, database, and feature implementation guidance when it affects a conclusion.
 
 Follow the repository's approved context-access paths: `jira-access`, `wiki-access`, `bitbucket-pr-access`, and `acumatica-git-workflow` for their respective evidence. Use `acumatica-development-guidance` when indexed guidance can improve the review, and read the exact returned articles before relying on them. Use `database-access` only when data evidence would materially affect a conclusion; a temporary test database is not a routine input to this review.
 
 Exclude temporary databases, backups, intermediate files, and earlier experiment results when they add no material context. They do not define requirements or delivered behavior. Preserve relevant runtime or validation evidence when it does materially affect a conclusion, and identify its environment and limits.
 
-Report missing prerequisites and restrict conclusions to the evidence-supported scope. Without a sufficient final specification or a resolved implementation/baseline, provide only a clearly labeled partial review, not a final coverage verdict. Missing QA issues alone do not prevent a final review. Missing functional detail does not establish a defect or justify inventing expected behavior.
+Report missing prerequisites and restrict conclusions to the evidence-supported scope. A final coverage verdict requires sufficient versioned requirements, an exact reviewed implementation commit, and an effective baseline. Give a clearly labeled partial review when any of these inputs is missing. QA Acceptance evidence is used when available.
 
 ## Pass 1: Reconcile Functional Requirements and QA Feedback
 
@@ -124,13 +124,13 @@ On a repeat review, revalidate previous findings and pending corrections against
 
 Use targeted validation appropriate to the risk and the user's constraints. Distinguish static inspection, syntax parsing, semantic compilation, automated tests, and runtime evidence. Never present one as proof of another. Identify material unverified scenarios without requiring broad builds or speculative tests merely to complete a checklist.
 
-Use `acumatica-session-notes` for substantial review handoff: preserve scope, accepted decisions, decisive evidence, remaining questions, and validation limits in the appropriate existing workstream.
+Use `acumatica-session-notes` to save or update the final review report in the Jira item's notes, normally `feature-final-review.md`. Record exact review inputs, decisive evidence, accepted decisions, remaining questions, and validation limits. When the review is partial, identify which required versions or inputs are missing in the report.
 
 ## Report
 
 Write in the user's requested language. Keep the report compact and actionable:
 
-1. **Scope:** feature, final specification/version, available QA issue source or its absence, baseline, reviewed branch/PR state, and material exclusions.
+1. **Scope and versions.** Record the Jira item, each functional requirement source type, exact URL or other locator, analyzed version, reviewed branch or PR, exact implementation commit SHA, baseline, available QA source, and material exclusions.
 2. **Functional pass:** summarize requirement coverage, validation/restriction and message traceability, QA issue reconciliation when available, accepted amendments/deferrals, and functional findings. Separate unsupported rules from wording mismatches and justified safeguards whose text is absent from the specification.
 3. **Technical pass:** summarize the design/ownership assessment, applicable standards checked and their versions, architectural and guideline findings, the proportionality assessment (including justified complexity and concrete simplification candidates), and material areas checked without findings.
 4. **Validation and limits:** report actual checks and uncertainties that affect confidence.

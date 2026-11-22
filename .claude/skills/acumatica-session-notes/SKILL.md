@@ -82,4 +82,8 @@ For Support Request analysis, capture root-cause status, workaround status, rela
 
 For reviews and specification verification, capture review scope, PR or branch context, decisive findings, requirement coverage gaps, validation limits, and residual risks.
 
-For feature development, capture current scope, implemented slices, files changed, important design decisions, validation, deferred items, open questions, and known risks.
+For feature development, keep the whole-feature plan and requirements analysis history in the scope note. Record each source type, exact URL or other locator, and analyzed version after every analysis. When work resumes from a PR or branch, record the reviewed commit and how the existing implementation maps to the plan.
+
+Maintain each stage note with intermediate results, approvals, changed files, validation evidence, and the closure report and source version comparison. Record doubts about requirements, conflicts with implementation, and temporary decisions. Capture the reason, affected behavior, and condition for revisiting a temporary decision. Preserve past records when the plan or requirements change.
+
+For Feature Final Review, save or update the review report with the source records for the requirements, the exact implementation commit reviewed, the baseline, findings, and validation limits. Identify missing versions explicitly in a partial review.

@@ -54,7 +54,7 @@ Use high-level workflow skills for task-specific context. Select the relevant pr
 - `acumatica-feature-final-review` - read-only final review of a Projects/Construction feature after iterative development, with separate functional coverage and technical/architectural reconciliation passes, available QA feedback, and assessment of accumulated complexity before handoff or merge.
 - `acumatica-small-bugfix` - minimal low-risk correction for a narrow defect when expected behavior, base branch, and validation are sufficiently clear.
 - `acumatica-bug-backport` - approval-gated creation of a local Service Pack or Patch backport branch and commit from an existing source fix and existing backport Bug; stops before push, pull request, Jira workflow changes, or cascade merge.
-- `acumatica-feature-development` - iterative feature implementation from a Jira item and functional specification, with scope ledger and requirement coverage.
+- `acumatica-feature-development` - iterative feature implementation from versioned functional requirements, with a whole-feature plan and approved stages.
 - `acumatica-technical-specification` - create or update concise technical design documentation from functional requirements and verified implementation evidence or an explicitly proposed design, including database/DAC definitions, component responsibilities, processing flows, and authorized publication through `wiki-internal`.
 - `functional-spec-risk-analysis` - read-only analysis of a functional specification before implementation for contradictions, ambiguity, lifecycle gaps, persistence/source-of-truth risk, and Acumatica implementability.
 
@@ -65,7 +65,11 @@ If the user's task does not fit one of these modes, perform the maximum safe ana
 Accepted inputs include Jira ticket ID, Support Request ID, functional specification source or Wiki URL, branch name, commit/ref range, pull request URL or coordinates, bug description, failing test name, exception message, stack trace, database backup/environment details, or Acumatica screen/table/API references.
 
 When Jira context is available, use it. For code review, a specific pull request, branch, or commit range is sufficient input; derive the linked Jira item from PR metadata, branch naming, or commit messages when available instead of asking the user. Resolve a PR through `bitbucket-pr-access`; a numeric PR ID without repository coordinates must be resolved from a URL or Jira Development data first.
-For specification verification, feature development, and final feature review, a functional specification is required. Use Jira requirements when they are complete enough; otherwise use a linked/provided Wiki specification or ask the user for the specification source. Final review uses the latest effective specification and accepted amendments; include QA Acceptance issues when available, but their absence alone does not block the review.
+
+Specification verification requires sufficient functional requirements. Use Jira requirements when they are complete enough and otherwise resolve the linked or provided specification.
+
+Feature development and final feature review use versioned functional requirements from the Jira item, Wiki pages, or Markdown files in Git or at local paths. If sufficient requirements are unavailable, explicitly ask for one of those sources. Record each source type, exact URL or other locator, and version before analysis, then record the version analyzed in session notes. Follow `docs/FEATURE_DEVELOPMENT_WORKFLOW.md` for the intake and version checks. Include QA Acceptance issues in final review when available.
+
 For technical specification work, establish the functional requirements and whether the document describes verified implementation or a proposed design. A draft request does not authorize Wiki publication; follow `acumatica-technical-specification` for the bounded publication workflow when the user requests or approves it.
 
 ## Repository and Local Sources
@@ -117,15 +121,20 @@ Mention missing relevant docs in the final result and continue with available so
 
 ## Implementation Stage Gates
 
-Feature work proceeds through explicitly approved business stages. Before changing
-product code for a stage, record a concise plan in the Jira item's session notes
-and request review/approval for that exact stage. A feature-level request does not
-implicitly approve every later stage or a newly discovered design change.
+After the initial requirements analysis, create a high-level plan for the whole
+feature in the Jira item's session notes. Reconcile an existing PR or branch
+with that plan when taking over partially implemented work. Before editing
+product code, record the detailed plan and obtain approval for the exact
+stage. Approval applies to the stated scope and design decisions.
 
 The plan must identify scope and exclusions, requirements and open decisions,
 data ownership and extension points, affected lifecycle and exposed-contract paths,
 validation, and residual risk. Update the same note with the approval, completed
-work, validation evidence, and deferred items at the stage boundary.
+work, validation evidence, and deferred items at the stage boundary. Report
+each stage's results and obtain user approval for closure and the next
+stage. Verify the requirements source versions before each transition and
+notify the user of changes. Record intermediate results, requirements
+conflicts, and temporary decisions in session notes as work proceeds.
 
 Apply the same discipline proportionally to bug fixes. A small bugfix needs a
 bounded diagnosis-and-fix plan before editing. Reclassify it as staged work when
@@ -134,7 +143,7 @@ behavior, or more than one independently significant lifecycle path.
 
 If data is insufficient, still perform the maximum useful analysis, list what is missing, state hypotheses as hypotheses, and provide a validation plan instead of guessing.
 
-A requested final feature review uses `acumatica-feature-final-review` before handoff or merge. Route product corrections back through `acumatica-feature-development` and the applicable stage approvals, including approvals already given. Technical specification work documents the design; it does not replace functional verification or authorize product changes.
+A requested final feature review uses `acumatica-feature-final-review` before handoff or merge. Save the review report in the Jira item's session notes with the exact requirements source locations and versions and the reviewed implementation commit SHA. Route product corrections back through `acumatica-feature-development` and the applicable stage approvals, including approvals already given. Technical specification work documents the design; it does not replace functional verification or authorize product changes.
 
 ## Environment Interaction Principle
 

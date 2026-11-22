@@ -1,13 +1,13 @@
 ---
 name: acumatica-feature-development
-description: Use this skill when Claude must implement or continue an Acumatica ERP feature from a Jira item and functional specification. Trigger on requests to develop a feature, continue feature work, implement a spec slice, maintain scope/coverage, trace Acumatica data paths, or make iterative code changes from Jira/Wiki requirements.
+description: Implement or continue an Acumatica ERP feature from versioned functional requirements. Use for planning a whole feature, reconciling a partial implementation, or delivering approved stages.
 ---
 
 # Acumatica Feature Development
 
 ## Purpose
 
-Implement features iteratively from an explicit functional specification. Keep scope, requirement coverage, validation, and residual risk visible.
+Implement features in approved stages from versioned functional requirements. Maintain the whole-feature plan, coverage, validation evidence, and remaining risks.
 
 ## Context Sources
 
@@ -40,9 +40,11 @@ Read domain, database, and source references only when they can change interpret
 
 If a required workflow doc is missing, continue with this skill and report the limitation.
 
-## Specification Source
+## Requirements and Initial Plan
 
-The functional specification is the primary source of requirements. When Jira links to a Wiki functional specification, retrieve the Wiki page and treat it as authoritative. Jira context, PRs, comments, related issues, local docs, existing code, tests, and read-only diagnostics are supporting evidence.
+Follow the source and version rules in [the feature development workflow](../../../docs/FEATURE_DEVELOPMENT_WORKFLOW.md#functional-requirements-and-source-versions). Use sufficient functional requirements from Jira, a Wiki specification, or versioned Markdown files in Git or at local paths. Ask explicitly for a requirements source and pause feature development when requirements are insufficient.
+
+Before analysis, identify each source type, exact URL or other locator, and version. Record each completed analysis with the version analyzed. Build a high-level plan covering the whole feature before planning the first stage of this work. When a PR or branch already exists, map its implementation and validation evidence to the plan and identify a starting stage.
 
 Do not implement ambiguous, contradictory, obsolete, or explicitly deferred requirements without user confirmation.
 
@@ -58,7 +60,7 @@ Maintain a concise scope ledger during feature work:
 
 Maintain a lightweight coverage matrix for substantial features: requirement, source, affected paths, status, code evidence, validation scenario, and residual risk.
 
-Use `acumatica-session-notes` for iterative work when session notes need to be created, refreshed, or updated. Keep notes focused on handoff context such as source, scope, implemented slices, files changed, decisions, validation, open questions, deferred items, and known risks.
+Use `acumatica-session-notes` throughout feature work. Record intermediate results, analysis versions, approvals, validation, and deferred work as they arise. Record and surface any doubts about requirements consistency or conflicts with implementation. Record temporary decisions and the conditions for revisiting them.
 
 Before editing product code for a feature slice, create or refresh a stage plan in
 the Jira item's session notes and present it for explicit user review/approval.
@@ -71,7 +73,7 @@ newly discovered design work.
 
 ## Iteration Workflow
 
-1. Refresh Jira, Wiki specification, comments, local docs, branch/PR context, and existing session notes when needed.
+1. Load the recorded requirements sources, versions, whole-feature plan, and stage notes. Refresh relevant context and apply the requirements version check at every stage transition.
 2. Use `acumatica-git-workflow` to discover or verify the task branch. Before editing, resume or prepare a `feature` branch; a new branch must use a freshly fetched stable ref, and every Git mutation requires explicit user confirmation.
 3. Inventory and classify requirements as ready, ambiguous, contradictory, deferred, or rejected for the current phase.
 4. Use `acumatica-development-guidance` to retrieve only the architecture, conventions, pitfalls, build, startup, testing, or validation articles relevant to the selected repository and slice. Read exact article resources, compare them with local docs and current code, and record material conflicts.
@@ -80,7 +82,7 @@ newly discovered design work.
 7. Present new architectural choices with your recommendation as described in the Approved Stage Plan in `docs/FEATURE_DEVELOPMENT_WORKFLOW.md`. Record the decision and obtain stage approval before editing product code.
 8. Implement the approved minimal slice using existing Acumatica patterns.
 9. Validate with focused builds/checks, `git diff --check` or equivalent, path parity review, and manual scenarios when tests are not in scope. Use applicable development guidance to select the narrowest reliable validation, but keep local build files and current-branch behavior authoritative.
-10. Recheck requirement coverage and update the stage note with implementation and validation evidence before proposing the next stage.
+10. Use [the stage transition procedure](../../../docs/FEATURE_DEVELOPMENT_WORKFLOW.md#7-report-recheck-requirements-and-approve-the-transition). Save and present the stage report, compare the current requirements sources and versions with the records for the stage, and notify the user of any change. Reanalyze changed requirements and update the plan as needed. Obtain and record approval for stage closure and any next stage before proceeding.
 
 ## Implementation Rules
 
@@ -102,6 +104,8 @@ newly discovered design work.
 
 Stop and report instead of implementing when:
 
+- functional requirements or their source versions are missing or cannot be verified;
+- the stage transition still needs a version check or user approval;
 - requirement meaning is unclear and likely interpretations produce different persisted data or accounting results;
 - spec comments contradict normative text and no later clarification resolves the conflict;
 - the slice requires schema redesign, broad workflow changes, report layout work, migration, or large refactoring that was not approved;
@@ -128,7 +132,7 @@ For regular implementation updates, report:
 2. business behavior implemented;
 3. key files or paths changed;
 4. validation run;
-5. known limitations;
-6. next recommended slice when useful.
+5. known limitations and open or temporary decisions;
+6. at the stage boundary, the requirements version comparison and the requested decision on closure and any next stage. Record the user's decision in the stage note.
 
 For coverage reviews, use statuses consistently: **Implemented**, **Partially implemented**, **Missing**, **Unclear**, **Deferred**, and **Not applicable**.
