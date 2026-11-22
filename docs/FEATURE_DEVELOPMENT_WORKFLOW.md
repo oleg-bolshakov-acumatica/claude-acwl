@@ -87,6 +87,8 @@ Each plan must contain:
 - focused validation scenarios, including parity and negative cases; and
 - residual risks and approval record.
 
+In the user-facing approval request, name each new architectural choice that affects this slice and briefly explain your recommendation. For example, propose the exact feature folder and why its module owns the behavior. If two designs are credible, give the consequence that distinguishes them and ask which to adopt. Record the decision in the same stage note. Stage approval covers the stated choices. Reopen a choice only when new evidence changes it.
+
 At completion, append the actual files/behavior changed, validation evidence,
 unresolved questions, and the next proposed stage. Keep historical decisions
 intact; record a later decision as a superseding entry rather than rewriting prior context.

@@ -88,7 +88,7 @@ After change-set/Jira/spec context, changed files, baseline, and required local 
 Recommended parallel tracks:
 
 - **Spec Compliance Track**: verify implementation against Jira/Wiki requirements, acceptance criteria, edge cases, and explicit linked issues.
-- **Architecture Track**: verify compliance with `ARCHITECTURE_RULES.md`, `REFACTORINGS.md`, Acumatica extension patterns, persistence boundaries, and customization-sensitive placement.
+- **Architecture Track**: verify compliance with `ARCHITECTURE_RULES.md`, `REFACTORINGS.md`, Acumatica extension patterns, persistence boundaries, and customization-sensitive placement. For multiple concrete extensions of one feature on one graph, verify their bases, activation and dependencies against §5.2.
 - **Migration/Schema Track**: when migration or schema files changed, verify upgrade safety, tenant/data consistency, DAC/schema alignment, and DB-specific script consistency.
 - **Test/Regression Track**: inspect test coverage, validation evidence, likely regression paths, and missing manual scenarios.
 - **Domain/Data Track**: when domain docs, local source definitions, source-of-truth tables, or read-only SQL can change the conclusion, verify data relationships, API/GI/report surfaces, and version/tenant assumptions.

@@ -16,13 +16,13 @@ Require one of these values; there is no default:
 | `scope=all` | Active SRs of both teams, regardless of assignee | None |
 | `scope=backlog` | The Project Accounting backlog queue | `AND assignee = ProjectAccounting_Ba` |
 
-Infer scope from explicit natural language ("all active SRs", "все сапорты в работе", "backlog Project Accounting", "бэклог команды") or an unambiguous supplied JQL. A JQL covering the base queue without an assignee restriction means `all`; the exact backlog assignee means `backlog`. An unrelated assignee filter, conflicting instructions, or a bare "support duty" request does not determine scope.
+Infer scope from explicit natural language in the user’s language (for example, "all active SRs" or "Project Accounting backlog") or an unambiguous supplied JQL. A JQL covering the base queue without an assignee restriction means `all`; the exact backlog assignee means `backlog`. An unrelated assignee filter, conflicting instructions, or a bare "support duty" request does not determine scope.
 
 If unresolved, ask explicitly with the `AskUserQuestion` tool when available, otherwise a direct question. This is a required scope clarification, not an optional-preference question:
 
-> Обработать все активные сапорты Projects/Construction независимо от исполнителя или только бэклог Project Accounting — SR, назначенные на ProjectAccounting_Ba?
+> Review all active Projects/Construction SRs across assignees, or only the Project Accounting backlog assigned to ProjectAccounting_Ba?
 
-Offer `Все активные SR` and `Только backlog Project Accounting`. Wait for an answer before Jira retrieval or creating a run folder. Do not turn elapsed time or a preselected option into a choice. The backlog account is a real assignee: do not replace it with `assignee IS EMPTY`, add empty assignees, or equate a literal unassigned queue with backlog. If "unassigned" is not explicitly tied to the team backlog, clarify this distinction.
+Offer the equivalents of `All active SRs` and `Project Accounting backlog only` in the user’s language. Wait for an answer before Jira retrieval or creating a run folder. Do not turn elapsed time or a preselected option into a choice. The backlog account is a real assignee: do not replace it with `assignee IS EMPTY`, add empty assignees, or equate a literal unassigned queue with backlog. If "unassigned" is not explicitly tied to the team backlog, clarify this distinction.
 
 The invariant base query is:
 
@@ -98,7 +98,7 @@ Use [report templates](references/report-templates.md) when writing results. Ada
 - Summarize distribution by Jira status/team and analysis step, and highlight blockers or actions needing attention. Put detailed evidence, continuation prompts and comment drafts only in Jira-item notes.
 - When a previous comparable successful run exists, optionally show added/removed keys and changed status/assignee. Compare only identical scope/JQL and complete queue retrievals. A removed key means no longer matching the query, not necessarily resolved. Never claim removals from a partial run.
 
-In `scope=all`, show each SR's current assignee in a separate **Assignee / Исполнитель** column in both the saved run summary and the final on-screen table. Use the live queue value even for reused reviews; show the display name and login when available. A confirmed empty assignee is `Unassigned / не назначен`; an unavailable field is `unknown`. Keep `ProjectAccounting_Ba` identifiable as the backlog account.
+In `scope=all`, show each SR's current assignee in a separate **Assignee** column in both the saved run summary and the final on-screen table. Use the live queue value even for reused reviews; show the display name and login when available. A confirmed empty assignee is `Unassigned`; an unavailable field is `unknown`. Keep `ProjectAccounting_Ba` identifiable as the backlog account.
 
 Conclude with queue counts, a compact on-screen table covering **every retrieved SR**, and clickable links to the saved run and relevant SR notes. Each row includes the key, short description, live status/team, a brief review (current step and strongest cause/confidence), and next action; include the mandatory assignee column for `scope=all`. Both scopes require this per-item summary, including reused and failed reviews. Mark stale/unknown reused evidence as historical/unverified and failed reviews as `not reviewed`. `fast` shortens each row's wording while preserving coverage of all items. Highlights may supplement the table; a report link or selected items alone does not satisfy the on-screen output. State incomplete coverage and reuse limits. See the [on-screen template](references/report-templates.md#on-screen-summary). If the scope is missing, only ask the scope question; no run report yet.
 

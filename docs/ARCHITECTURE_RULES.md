@@ -98,19 +98,7 @@ Every persistent DAC must include:
 
 **Allowed uses**: DAC/cache extensions are acceptable when the base DAC cannot or should not be modified, when the local architecture already uses a feature-owned extension pattern, or for unbound, calculated, projection-specific, integration, compatibility, or customization fields.
 
-Do not create a parallel DAC extension merely to keep an internal product change separate from the owning DAC.
-
-```csharp
-// INCORRECT
-[PXCacheExtension(typeof(InventoryItem))]
-public class InventoryItemExt : PXCacheExtension<InventoryItem> { }
-
-// CORRECT - Add fields directly to DAC
-public class InventoryItem : PXBqlTable, IBqlTable
-{
-    // Add new fields here
-}
-```
+Group related feature-dependent unbound fields in a DAC extension with a meaningful `IsActive`. For existing bound fields, keep storage and default behavior in the owning DAC. A DAC extension may specialize their attributes across graphs when the stage plan explains the activation condition and the behavior with the feature on and off. For behavior confined to one graph, see §6.4.
 
 ### 2.5 BQL Field Type Matching
 
@@ -274,14 +262,16 @@ public static class FK
 ### 3.2 Relationship Attributes
 | Attribute | Purpose |
 |-----------|---------|
-| `[PXParent(typeof(FK.Parent))]` | Parent-child relationship with cascade delete |
-| `[PXForeignReference(typeof(FK.Entity))]` | Referential integrity enforcement |
+| `[PXParent(typeof(FK.Parent))]` | Declares the parent. Deleting it normally cascades to owned children. `LeaveChildren = true` disables this attribute's cascade. |
+| `[PXForeignReference(typeof(FK.Entity))]` | Registers a reference with the framework. The one-argument constructor uses `ReferenceBehavior.Restrict`. |
 | `[PXDBDefault(typeof(Parent.field))]` | Cascade default values from parent |
 | `[PXDBChildIdentity(typeof(Parent.identityField))]` | Link identity to parent's auto-number |
 
-For parent-child or referenced-record behavior, first model the relation with the FK class and declarative attributes. Use `[PXParent]`, `[PXDBDefault]`, and `[PXDBChildIdentity]` for parent-owned cascade/default/identity semantics; use `[PXForeignReference]` when a reference must prevent deletion of a referenced record. Imperative delete guards or manual key copying are allowed only when these mechanisms cannot represent the required behavior, and then require an explicit rationale and delete/cascade validation.
+For an owned child, use the attributes that implement its required parent, defaulting and identity behavior. For a reference that must prevent deletion, verify the referenced DAC's delete path checks incoming references (for example through `PXReferentialIntegrityCheck`). Verify any required SQL constraint separately in DatabaseModel. If the framework mechanisms cannot express the required behavior, document the reason for custom logic and validate deletion with dependent rows present.
 
 ### 3.3 Usage in BQL
+When a DAC declares an FK matching the join, prefer that FK in `On<...>`. This keeps composite key comparisons in one place and lets consumers follow changes to the mapping. Preserve the join type and any additional predicates in their original scope, especially for a left join. Use explicit comparisons when the query needs a different relationship.
+
 ```csharp
 // CORRECT - Use FK for joins and conditions
 public SelectFrom<SOLine>
@@ -289,10 +279,6 @@ public SelectFrom<SOLine>
     .Where<SOLine.FK.Order.SameAsCurrent>
     .View Lines;
 
-// INCORRECT - Manual join conditions
-public SelectFrom<SOLine>
-    .InnerJoin<InventoryItem>.On<InventoryItem.inventoryID.IsEqual<SOLine.inventoryID>>
-    .View Lines;
 ```
 
 ---
@@ -337,7 +323,8 @@ public class ProjectedDAC : PXBqlTable, IBqlTable
 **Rules:**
 - Map every persisted projection field to its source with `BqlField`, unless it is explicitly calculated, scalar, or unbound.
 - Define `IsKey` fields so they represent the real uniqueness of the projected row.
-- Keep `Persistent = false` for read models. Use persistent projections only when insert, update, and delete behavior is intentionally designed and verified.
+- Compose projections when an outer query reuses or aggregates an inner result. Check what one row represents before and after joins or grouping.
+- Keep read models nonpersistent. For a writable projection, identify the target tables and keys and verify which insert, update and delete operations are supported.
 - Treat projection field and key changes as public read-model changes when the projection can feed inquiries, reports, APIs, or imports.
 
 ---
@@ -362,6 +349,8 @@ public class MyGraph : PXGraph<MyGraph, PrimaryDAC>
 ```
 
 ### 5.2 Graph Extensions
+Within a feature, prefer one concrete extension per host graph. Keep related handlers, actions and views together. Multiple extensions make sense when they require different shared bases, activation conditions or framework dependency chains. Reuse a shared abstract base when several hosts implement the same behavior.
+
 **Rule**: Use abstract graph extensions instead of service classes for injectable functionality.
 
 ```csharp
@@ -495,7 +484,7 @@ Review the applicable context indicators, including:
 ## 6. Declarative Logic
 
 ### 6.1 When to Use Declarative
-Use declarative patterns for behavior that is invariant across all graph contexts:
+For behavior shared across graphs, prefer the simplest supported declarative form with equivalent semantics. Check defaults, nulls and recalculation timing for formulas, and preserve codes and localized labels for lists. Avoid APIs marked obsolete on the target branch.
 
 | Logic Type | Implementation |
 |------------|----------------|
@@ -515,18 +504,25 @@ Use imperative patterns for graph-specific logic:
 | State-transition validation | Workflow transition/action plus server-side persistence guard |
 | Posting or irreversible-state validation | Release or processing path |
 | Graph workflow logic | Event handlers |
-| UI state management | `RowSelected` (no DB queries) |
-| Complex calculations | `FieldDefaulting`, `RowUpdated` |
+| Row-dependent UI state | `RowSelected` (no DB queries) |
+| Calculations requiring graph state or a processing sequence | Use the event or method that owns the calculation |
 
 ### 6.3 Calculated Field Examples
+
+Prefer `PXFormula` when the value should follow edits to dependent fields on the current cache row before save. On an unbound field it can also evaluate as a row is materialized in the application. Use `PXDBCalced` when a query needs the database to evaluate the expression in its SELECT, for example for filtering or aggregation. A bound field with `PXFormula` exposes its stored value to SQL after persistence.
+
+If a formula cannot express the required dependencies or timing clearly, use a focused imperative calculation. When either approach is credible and the choice is unclear, ask the developer in the existing stage review. Explain the consequence, such as when an unsaved edit becomes visible.
+
 ```csharp
 // Database-side calculation
+[PXDecimal]
 [PXDBCalced(typeof(
     SOLine.orderQty.Multiply<SOLine.unitPrice>.Subtract<SOLine.discAmt>
 ), typeof(decimal))]
 public virtual decimal? NetAmount { get; set; }
 
 // Application-side formula
+[PXDBDecimal(4)]
 [PXFormula(typeof(Mult<SOLine.orderQty, SOLine.unitPrice>))]
 public virtual decimal? ExtPrice { get; set; }
 ```
@@ -536,7 +532,7 @@ public virtual decimal? ExtPrice { get; set; }
 Use `CacheAttached` attribute modification carefully because it changes field behavior for the active graph context.
 
 **Rules:**
-- Prefer `PXMergeAttributes(Method = MergeMethod.Append)` or `Merge` over `Replace`.
+- For one property of an existing attribute, prefer the typed `PXCustomize.*` available on the target branch, e.g. `[PXCustomize.PXUIFieldAttribute(Visible = true)]`. To change the attribute set, use `Append` or `Merge`, or `Replace` when the full set must change.
 - Use `PXRemoveBaseAttribute` only when the removed base behavior is explicitly replaced or no longer valid.
 - Be especially careful with DB, defaulting, formula, selector, restrictor, note, searchable, and security-related attributes.
 - After changing attributes, verify defaulting, validation, UI state, persistence, import/API behavior, and workflow/action availability affected by that field.
@@ -644,18 +640,13 @@ Choose slot lifetime intentionally.
 - Reset persistent slots only through an intentional invalidation path.
 
 ### 8.3 Field Visibility
+Put invariant field state on the DAC. For a graph-wide setting, prefer `CacheAttached` (§6.4) or configure the cache once in the graph constructor when imperative setup is needed. For row-dependent state, use that graph's `RowSelected`. Feature-specific graph behavior belongs in its graph extension. For visibility controlled solely by an installed feature across graphs, use the mapped `FieldClass`.
+
 ```csharp
 // Via FieldClass attribute
 [PXDBInt]
 [PXUIField(DisplayName = "Cost Code", FieldClass = CostCodeAttribute.COSTCODE)]
 public virtual int? CostCodeID { get; set; }
-
-// Dynamic visibility
-protected virtual void _(Events.RowSelected<SOOrder> e)
-{
-    bool enabled = PXAccess.FeatureInstalled<FeaturesSet.projectAccounting>();
-    PXUIFieldAttribute.SetVisible<SOOrder.projectID>(e.Cache, e.Row, enabled);
-}
 ```
 
 `FieldClass` is an access token mapped by the applicable `Features.xml` (`NetTools/PX.Data/Access/Features.xml` for base features); it is not necessarily the name of the corresponding `FeaturesSet` field. Reuse the canonical token or constant declared for the feature instead of assuming `nameof(FeaturesSet.feature)` is valid.
@@ -807,17 +798,17 @@ PX.Objects/
 | Extension Type | Location | Naming Convention |
 |----------------|----------|-------------------|
 | Feature Extension | `{Module}/{Feature}/GraphExtensions/` | `{BaseGraph}{Role}Ext.cs` |
-| Cross-Module Extension | `{Module}/GraphExtensions/{BaseGraph}Ext/` | `{SourceModule}{BaseGraph}{Role}Ext.cs` |
+| Module-wide cross-module extension | `{Module}/GraphExtensions/{BaseGraph}Ext/` | `{SourceModule}{BaseGraph}{Role}Ext.cs` |
 | Nested Extension (inside graph) | Same file as base graph | `public class {ExtName} : PXGraphExtension<BaseGraph>` |
 | Activity Details | `{Module}/GraphExtensions/` | `{Graph}_ActivityDetailsExt.cs` |
 | External Tax | `{Module}/GraphExtensions/` | `{Graph}ExternalTax.cs` |
 
 **Rules:**
 1. Extensions that extend graphs from the **same module** can be placed in the `GraphExtensions/` subfolder or nested inside the graph class. Feature-owned extensions follow the feature folder and namespace convention in Section 11.6.1.
-2. Extensions that extend graphs from **different modules** should be in the extending module's `GraphExtensions/` folder.
+2. For a graph from another module, place the extension in the extending module. Use the feature folder for feature-owned behavior (§11.8).
 3. Use nested classes for tightly coupled extensions that are always active with the base graph.
 
-**Example - Same Module Extension:**
+**Example - Module-wide cross-module extensions:**
 ```
 PX.Objects/PM/GraphExtensions/
 |-- POOrderEntryExt.cs           # PM extending PO.POOrderEntry
@@ -856,7 +847,7 @@ public class VendorLocationMaint : LocationMaint
 **Rules:**
 1. Place DACs in the module that owns the database table.
 2. For DACs shared across modules, place in the module that creates/manages the data.
-3. Projection DACs should reference the base DAC's module location.
+3. Keep shared projections with their owning module. Group feature-owned DACs and projections under the feature folder (§11.8).
 4. Standalone DACs are used when you need a separate cache for the same table.
 
 **Example:**
@@ -907,7 +898,7 @@ PX.Objects/Common/Attributes/
 
 #### 11.6.1 Feature Namespace and Extension Naming
 
-Physical folders group implementation ownership; namespaces express the public modular contract. New DACs may live in a feature folder but remain in their module namespace, for example `PX.Objects.PM`. Feature-specific graph extensions use `PX.Objects.<Module>.<Feature>.GraphExtensions` and live under the corresponding `GraphExtensions` folder. Name them compactly as `<BaseGraph><Role>Ext`; do not repeat the feature name in the type when the namespace already provides it.
+Physical folders group implementation ownership. New DACs may live in a feature folder and retain their module namespace, for example `PX.Objects.PM`. For new graph extension families use `PX.Objects.<Module>.<Feature>.GraphExtensions`. When extending an existing family, retain its established namespace. Use `<BaseGraph>Ext`, adding a role when needed to distinguish extensions.
 
 Keep broadly consumed non-extension contracts in the module namespace only when their ownership is genuinely module-wide. Otherwise use the feature namespace and record the reason in the stage plan.
 
@@ -988,7 +979,9 @@ public class OrderStatus
 
 ### 11.8 Feature Extension Organization
 
-When adding feature-specific functionality, organize extensions by feature:
+Prefer one named feature folder in the owning module for its new extensions, DACs, projections and helpers, including extensions of graphs from other modules. Reuse an existing feature folder where it fits. Add subfolders as the implementation grows.
+
+For feature-specific changes to another module's Modern UI screen, prefer a screen extension under the host screen's `extensions/` folder. Put the added views and layout there as needed. Align `@featureInstalled` on screen and view extensions with the backend feature condition so the base screen also works with the feature disabled.
 
 ```
 PX.Objects/{Module}/
@@ -1033,6 +1026,8 @@ PX.Objects/SO/
 ```
 
 ### 11.10 Summary Table
+
+Module-level locations below are defaults. For feature-owned additions apply §11.8.
 
 | Artifact | Primary Location | Naming Pattern |
 |----------|------------------|----------------|

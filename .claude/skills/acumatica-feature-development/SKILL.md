@@ -77,7 +77,7 @@ newly discovered design work.
 4. Use `acumatica-development-guidance` to retrieve only the architecture, conventions, pitfalls, build, startup, testing, or validation articles relevant to the selected repository and slice. Read exact article resources, compare them with local docs and current code, and record material conflicts.
 5. Trace relevant Acumatica data paths: entry/defaulting, validation, persist, release/posting, application/adjustment, reversal/void/delete, long operations, mass processing, recalculation/rebuild, reports/projections/inquiries, workflow, imports, API, copy/template behavior, and UI refresh.
 6. Plan a coherent business slice: selected behavior, excluded scope, central extension points, affected paths, customization impact, compatibility impact, validation, and residual risk.
-7. Record the plan in the stage note and obtain explicit approval before editing product code.
+7. Present new architectural choices with your recommendation as described in the Approved Stage Plan in `docs/FEATURE_DEVELOPMENT_WORKFLOW.md`. Record the decision and obtain stage approval before editing product code.
 8. Implement the approved minimal slice using existing Acumatica patterns.
 9. Validate with focused builds/checks, `git diff --check` or equivalent, path parity review, and manual scenarios when tests are not in scope. Use applicable development guidance to select the narrowest reliable validation, but keep local build files and current-branch behavior authoritative.
 10. Recheck requirement coverage and update the stage note with implementation and validation evidence before proposing the next stage.

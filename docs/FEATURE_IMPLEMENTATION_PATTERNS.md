@@ -13,10 +13,11 @@ Implement a feature as a coherent business slice, not as isolated field or scree
 For each slice, identify:
 
 - the business result that must change;
-- the owning module and primary graph;
+- the owning module, feature folder and host graphs (extension boundaries follow §5.2 of `ARCHITECTURE_RULES.md`);
 - affected DAC fields, projections, accumulators, reports, and processes;
 - normal processing paths and rebuild/recalculation paths;
-- UI surfaces that display or edit the result;
+- UI surfaces that display or edit the result and the scope of each field-state rule (§8.3, including `Features.xml`);
+- feature-owned additions to another module's screen and their behavior with the feature on and off (§11.8);
 - extension points that should remain customizable.
 
 Keep shared helpers narrow. Prefer graph or graph-extension `protected virtual` methods for feature behavior that may need customization. Use static methods only for pure utilities or framework-neutral calculations that do not depend on graph state.

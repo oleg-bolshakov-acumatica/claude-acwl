@@ -9,9 +9,9 @@ without running full SR reviews or creating a duty-run report.
 | Input / evidence | Expected behavior |
 |---|---|
 | `Run support duty` | Ask all vs backlog; no Jira call or run folder before answer |
-| `Все активные SR Projects/Construction`, or `scope=all` | Base teams/statuses unchanged; no assignee clause |
-| `Только backlog Project Accounting`, or `scope=backlog` | Exactly `assignee = ProjectAccounting_Ba`; no `IS EMPTY` |
-| `Неназначенные SR`, without backlog clarification | Ask which queue; do not silently select literal empty or backlog |
+| `All active Projects/Construction SRs`, or `scope=all` | Base teams/statuses unchanged; no assignee clause |
+| `Project Accounting backlog only`, or `scope=backlog` | Exactly `assignee = ProjectAccounting_Ba`; no `IS EMPTY` |
+| `Unassigned SRs`, without backlog clarification | Ask which queue; do not silently select literal empty or backlog |
 | Full base JQL without assignee | Infer all; stable key ordering |
 | Backlog JQL / a conflicting scope or unrelated assignee | Infer backlog only when unambiguous; otherwise clarify before retrieval |
 | Existing relevant detailed investigation | Current queue metadata + dated reused findings; no new SR-detail/similarity calls |

@@ -705,7 +705,7 @@ DAC field properties MUST use auto-implemented property syntax. Explicit backing
 - All DAC properties MUST use `{ get; set; }` auto-implementation
 - No explicit backing fields UNLESS documented technical exception exists
 - Property logic MUST move to attributes or event handlers
-- Calculated values MUST use `[PXFormula]` or unbound fields
+- Choose the calculation mechanism for the field's consumer (REF-607).
 
 **Why It Matters in Acumatica:**
 - Framework expects consistent property patterns
@@ -716,12 +716,12 @@ DAC field properties MUST use auto-implemented property syntax. Explicit backing
 **Risks / Side Effects:**
 - Existing code referencing backing field directly requires update
 - Some legacy patterns may require backing field (document with reason)
-- Computed properties need conversion to formulas
+- Moving a computed getter can change when the value is refreshed
 
 **Acceptance Criteria:**
 - No DAC has explicit backing fields without documented exception
 - All properties use auto-implemented syntax
-- Property logic moved to appropriate attributes
+- Property logic moved to the appropriate attribute or lifecycle handler
 - DAC serialization functions correctly
 
 **Related Acumatica Mechanisms:**
@@ -785,7 +785,7 @@ BQL field classes MUST use strongly typed base classes that correspond exactly t
 ### REF-103: Define Primary Keys and Foreign Keys in DACs
 
 **Description:**  
-Every persistent DAC MUST define a `PK` nested class for primary key and `FK` static class for foreign key relationships. This enables optimized lookups and enforces referential integrity.
+Every persistent DAC MUST define a nested `PK` class for its primary key and a static `FK` class for its foreign key relationships. These types describe field mappings for lookups and joins. For runtime deletion behavior, follow §3.2 of `ARCHITECTURE_RULES.md`.
 
 **When to Apply (Symptoms):**
 - DAC lacks nested `PK` class
@@ -804,13 +804,12 @@ Every persistent DAC MUST define a `PK` nested class for primary key and `FK` st
 **Why It Matters in Acumatica:**
 - PK.Find() provides optimized single-record lookup
 - FK definitions enable compile-time join validation
-- Framework uses FK for cascade operations
-- Referential integrity enforced declaratively
+- Relationship attributes can reuse the same key mapping for framework deletion checks or cascades.
 
 **Risks / Side Effects:**
 - Adding keys to existing DACs may expose integrity violations
 - Composite keys require careful field ordering
-- FK enforcement may block deletes of referenced records
+- Enabling deletion checks may block deletes of referenced records.
 
 **Acceptance Criteria:**
 - All persistent DACs have PK class with Find() method
@@ -880,7 +879,7 @@ Every persistent DAC MUST include standard system fields for audit tracking, con
 ### REF-105: Avoid Unjustified DAC Extensions for Product-Owned Persistent Fields
 
 **Description:**  
-For product-owned persistent fields in product DACs, prefer adding fields directly to the DAC that owns the table. DAC/cache extensions are acceptable when the base DAC cannot or should not be modified, when the local architecture already uses a feature-owned extension pattern, or for unbound, calculated, projection-specific, integration, compatibility, or customization fields.
+Keep product-owned storage in the owning DAC. For feature-dependent fields and attribute overrides, evaluate the extension boundary and activation condition using §2.4 of `ARCHITECTURE_RULES.md`.
 
 **When to Apply (Symptoms):**
 - New product-owned persistent field is added through `PXCacheExtension<T>` without a justified extension scenario
@@ -1557,7 +1556,7 @@ When modifying persistent DACs (adding fields, changing types, adding keys), the
 **Importance:** High
 
 **Description:**  
-`CacheAttached` attribute modifications MUST preserve base field semantics unless the PR intentionally replaces them. Prefer narrow merges over broad replacement or removal of base attributes.
+`CacheAttached` changes must preserve the field behavior inherited by that graph except where the feature intentionally changes it.
 
 **When to Apply (Symptoms):**
 - `PXMergeAttributes(Method = MergeMethod.Replace)` used without a clear reason
@@ -1566,7 +1565,7 @@ When modifying persistent DACs (adding fields, changing types, adding keys), the
 - Import/API, workflow, or persistence behavior changes unexpectedly after attribute modification
 
 **Core Transformation (Target State):**
-- Prefer `PXMergeAttributes(Method = MergeMethod.Append)` or `Merge`
+- Prefer typed `PXCustomize.*` for a supported property change. For a change in the attribute set, choose the merge method described in §6.4 of `ARCHITECTURE_RULES.md`.
 - Remove base attributes only when the removed behavior is explicitly replaced or no longer valid
 - Keep DB/type attributes, defaults, formulas, selectors, restrictors, notes, searchable attributes, and security behavior consistent with the intended field contract
 - Add focused validation for defaulting, verification, UI state, persistence, import/API, and workflow/action availability affected by the field
@@ -1581,12 +1580,12 @@ When modifying persistent DACs (adding fields, changing types, adding keys), the
 - Removing an attribute may be valid but requires explicit validation of the replacement behavior
 
 **Acceptance Criteria:**
-- Attribute changes use the narrowest merge method that satisfies the requirement
+- The effective attribute set changes only the intended behavior
 - Any base attribute removal is justified by behavior, not convenience
 - Affected field behavior is validated across UI, persistence, and non-UI entry paths
 
 **Related Acumatica Mechanisms:**
-`CacheAttached`, `PXMergeAttributes`, `PXRemoveBaseAttribute`, `PXCustomizeBaseAttribute`, field attributes
+`CacheAttached`, `PXCustomize.*`, `PXMergeAttributes`, `PXRemoveBaseAttribute`
 
 **Common Anti-Patterns Nearby:**
 - Replacing all attributes to change only display metadata
@@ -1816,7 +1815,7 @@ Complex queries involving multiple joins, aggregations, or calculations that are
 **Core Transformation (Target State):**
 - Create projection DAC with `[PXProjection(typeof(SelectFrom<>...), Persistent = false)]`
 - Map fields using `[PXDBField(BqlField = typeof(BaseTable.field))]`
-- Calculated fields use `[PXDBCalced]` attribute
+- Use `[PXDBCalced]` for a projection field whose expression must run in the SELECT.
 - Views reference projection DAC instead of inline query
 - Projection marked `[PXHidden]` if not user-facing
 
@@ -1965,58 +1964,19 @@ BQL queries SHOULD be executed using an explicit and correct Graph context. Quer
 
 ### REF-208: Use FK-Based Join Syntax Instead of Manual Field Comparisons
 
-**Priority:** Medium  
+**Priority:** Medium
+
 **Importance:** High
 
-**Description:**  
-BQL joins SHOULD use FK-based syntax (`.InnerJoin<T>.On<DAC.FK.Related>`) instead of manual field comparison joins (`.On<T.field.IsEqual<U.field>>`). FK-based joins are compile-time validated and self-documenting.
-
-**When to Apply (Symptoms):**
-- Join conditions manually specify field equality: `.On<T.fieldA.IsEqual<U.fieldB>>`
-- FK class exists on the DAC but joins do not reference it
-- Composite key joins are error-prone due to manual field ordering
-- Joins are inconsistent across views for the same relationship
-
-**Core Transformation (Target State):**
-- Replace manual join conditions with `.InnerJoin<T>.On<DAC.FK.Related>` (or `LeftJoin`, `CrossJoin`, etc.)
-- Ensure FK class is defined on the child DAC (see REF-103)
-- Use `.SameAsCurrent` for current-row filtering via FK
+When a join repeats a DAC's declared FK, apply §3.3 of `ARCHITECTURE_RULES.md`. Replace the matching key comparisons and keep the join type and additional conditions. For example, the receipt-type restriction below belongs in the left join:
 
 ```csharp
-// CORRECT - FK-based join
-public SelectFrom<SOLine>
-    .InnerJoin<InventoryItem>.On<SOLine.FK.InventoryItem>
-    .Where<SOLine.FK.Order.SameAsCurrent>
-    .View Lines;
-
-// INCORRECT - Manual field comparison
-public SelectFrom<SOLine>
-    .InnerJoin<InventoryItem>.On<InventoryItem.inventoryID.IsEqual<SOLine.inventoryID>>
-    .View Lines;
+SelectFrom<INRegister>
+    .LeftJoin<INTran>.On<INTran.FK.INRegister
+        .And<INTran.tranType.IsEqual<INTranType.receipt>>>
 ```
 
-**Why It Matters in Acumatica:**
-- Compile-time validation catches relationship errors
-- Reduces copy-paste mistakes in composite key joins
-- Self-documents the relationship intent
-- Changes to key structure propagate automatically
-- Architecture rules (§3.3) mandate FK-based join syntax
-
-**Risks / Side Effects:**
-- Requires FK definitions to exist (see REF-103)
-- Some ad-hoc joins may not have FK equivalents (cross-module, analytical)
-
-**Acceptance Criteria:**
-- Joins use FK syntax where FK definitions exist
-- Manual field-comparison joins remain only for ad-hoc/analytical cases
-- Query results unchanged
-
-**Related Acumatica Mechanisms:**
-`FK` nested class, `ForeignKeyOf<>`, `InnerJoin<>.On<>`, `SameAsCurrent`
-
-**Common Anti-Patterns Nearby:**
-- Duplicate manual join conditions that drift from FK definition
-- Forgetting a field in composite key joins
+Check the full field mapping for composite keys and verify that the same rows match, including parents without a matching child in an outer join. See REF-103 for FK declarations and §3.3 for current-row filtering with `SameAsCurrent`.
 
 ---
 
@@ -2167,7 +2127,7 @@ Projection DACs MUST map fields and keys deliberately. Every persisted projectio
 **Core Transformation (Target State):**
 - `RowSelected` SHOULD only adjust UI state and cache-level state that is safe to evaluate repeatedly
 - Field defaults MUST use `[PXDefault]` or `FieldDefaulting` event
-- Calculations MUST use `[PXFormula]` or `RowUpdated`/`FieldUpdated`
+- Move field calculations to the attribute or lifecycle method that owns them (REF-607).
 - Related data MUST be fetched via view joins, not per-row queries
 - Business rules MUST be in `FieldUpdated`, `RowUpdated`, or `RowPersisting`
 
@@ -2201,7 +2161,7 @@ Projection DACs MUST map fields and keys deliberately. Every persisted projectio
 ### REF-302: Use Declarative Attributes for Invariant Field Behavior
 
 **Description:**  
-Field behaviors that are consistent across all Graph contexts MUST be implemented declaratively via attributes rather than imperatively in event handlers.
+Prefer declarative attributes for field behavior shared across graphs when they express its semantics and timing.
 
 **When to Apply (Symptoms):**
 - Same `FieldDefaulting` logic appears in multiple Graphs
@@ -2212,8 +2172,7 @@ Field behaviors that are consistent across all Graph contexts MUST be implemente
 
 **Core Transformation (Target State):**
 - Defaults MUST use `[PXDefault]` with appropriate source type
-- Simple calculations MUST use `[PXFormula]`
-- DB-side calculations MUST use `[PXDBCalced]`
+- Choose cache-side or database-side calculation according to REF-607.
 - Required validation MUST use `[PXUIRequired]` or `[PXUIVerify]`
 - Lookup restrictions MUST use `[PXRestrictor]`
 - Cross-field defaults MUST use `[PXFormula(typeof(Default<...>))]`
@@ -2230,7 +2189,7 @@ Field behaviors that are consistent across all Graph contexts MUST be implemente
 - Some calculations require runtime context
 
 **Acceptance Criteria:**
-- Invariant behaviors use declarative attributes
+- Invariant behaviors use declarative attributes where they express the rule clearly
 - No duplicate logic across Graph event handlers
 - DAC attributes document field behavior
 - Graph-specific logic remains in handlers
@@ -2241,7 +2200,7 @@ Field behaviors that are consistent across all Graph contexts MUST be implemente
 **Common Anti-Patterns Nearby:**
 - Defaults set in multiple FieldDefaulting handlers
 - Validation repeated across Graphs
-- Calculated fields using event handlers instead of formulas
+- Handlers duplicating a calculation already expressed by a DAC formula
 
 ---
 
@@ -2833,17 +2792,17 @@ Parent-child DAC relationships MUST use declarative relationship attributes (`[P
 
 **Core Transformation (Target State):**
 - For a parent-owned child, add `[PXParent(typeof(FK.ParentEntity))]` on the child DAC's foreign key field for cascade delete
-- For a reference that must prevent deletion, add `[PXForeignReference(typeof(FK.Entity))]`
+- For a reference that must prevent deletion, register it with `PXForeignReference` and verify the referenced record's delete path (§3.2).
 - Add `[PXDBDefault(typeof(ParentDAC.keyField))]` for cascade defaulting of parent key values
 - Add `[PXDBChildIdentity(typeof(ParentDAC.identityField))]` to link identity fields
 - Ensure FK class exists on child DAC (see REF-103)
 
 ```csharp
-// CORRECT - Declarative relationship
-[PXDBInt]
-[PXDBDefault(typeof(SOOrder.orderNbr))]
+// SOLine.OrderNbr (relationship attributes shown)
+[PXDBString(15, IsUnicode = true, IsKey = true, InputMask = "")]
+[PXDBDefault(typeof(SOOrder.orderNbr), DefaultForUpdate = false, FieldUpdateMode = PXFieldUpdateMode.OnParentPersisted)]
 [PXParent(typeof(FK.Order))]
-public virtual int? OrderNbr { get; set; }
+public virtual string OrderNbr { get; set; }
 
 // INCORRECT - Imperative cascade
 protected virtual void _(Events.FieldDefaulting<SOLine, SOLine.orderNbr> e)
@@ -2853,13 +2812,11 @@ protected virtual void _(Events.FieldDefaulting<SOLine, SOLine.orderNbr> e)
 ```
 
 **Why It Matters in Acumatica:**
-- Declarative attributes are enforced consistently regardless of Graph context
-- Cascade operations survive Graph Extension changes
-- Architecture rules (§3.2) mandate these attributes for relationships
+- The DAC declares ownership and key propagation for the graphs that use it.
 - Reduces event handler clutter
 
 **Risks / Side Effects:**
-- Adding `[PXParent]` enables cascade delete which may not have been active before
+- Adding `[PXParent]` with its default settings can introduce cascade deletion. Validate the intended child lifecycle.
 - `[PXDBDefault]` behavior differs from `[PXDefault]` — it defaults from DB at persist time
 
 **Acceptance Criteria:**
@@ -3092,49 +3049,11 @@ Actions that start Long Operations SHOULD use the standard `IEnumerable` action 
 
 ---
 
-### REF-601: Use PXUIFieldAttribute Methods in RowSelected Only
+### REF-601: Evaluate Row-Dependent UI State in RowSelected
 
-**Description:**  
-`PXUIFieldAttribute` methods (SetEnabled, SetVisible, SetRequired) SHOULD be called primarily in `RowSelected` events to manage UI state based on current row data.
+Use `RowSelected` when visibility, availability or requiredness depends on the current row. Verify the UI refreshes when switching between rows with different states. Keep queries and data changes outside this handler.
 
-**When to Apply (Symptoms):**
-- UI state methods called from FieldUpdated
-- SetEnabled called in constructor
-- SetVisible scattered throughout Graph
-- UI state not updating when row changes
-- UI state dependent on stale conditions
-
-**Core Transformation (Target State):**
-- Centralize UI state logic in `RowSelected` handler
-- Use `PXUIFieldAttribute.SetEnabled<Field>(cache, row, condition)`
-- Evaluate conditions based on `e.Row` current state
-- Actions' state managed in `RowSelected`
-- Avoid UI state methods in other events unless necessary
-
-**Why It Matters in Acumatica:**
-- RowSelected fires when UI needs state
-- Centralized logic easier to maintain
-- UI state derives from current row values
-- Other events don't guarantee UI refresh
-
-**Risks / Side Effects:**
-- Heavy RowSelected slows navigation
-- Must not add queries to RowSelected (see REF-301)
-- Conditional logic may become complex
-
-**Acceptance Criteria:**
-- UI state methods in RowSelected
-- No SetEnabled/SetVisible in constructors
-- UI state updates on row selection
-- Performance acceptable
-
-**Related Acumatica Mechanisms:**
-`PXUIFieldAttribute.SetEnabled/SetVisible/SetRequired/SetReadOnly`, `RowSelected`
-
-**Common Anti-Patterns Nearby:**
-- UI state in field events
-- Static UI state in constructor
-- UI state based on queries
+For fixed graph-wide cache settings and declarative field state, follow §8.3 of `ARCHITECTURE_RULES.md`. See [PX1070](acuminator/PX1070.md) for the graph constructor case.
 
 ---
 
@@ -3359,63 +3278,9 @@ protected virtual IEnumerable release(PXAdapter adapter) { ... }
 
 ### REF-607: Use PXFormula and PXDBCalced Instead of Imperative Calculations in Event Handlers
 
-**Priority:** Medium  
-**Importance:** High
+When several handlers implement the same field calculation, choose its owner using §6.3 of `ARCHITECTURE_RULES.md`. Prefer `PXFormula` for current-row edits and `PXDBCalced` for SQL selection. Keep a focused imperative implementation when the rule depends on graph state or processing order that a formula cannot represent clearly.
 
-**Description:**  
-Field calculations that follow a fixed formula regardless of Graph context SHOULD use `[PXFormula]` (application-side) or `[PXDBCalced]` (database-side) instead of imperative calculation code in event handlers. This is a specialization of the general principle in REF-302.
-
-**When to Apply (Symptoms):**
-- Same arithmetic expression repeated in `FieldUpdated`/`RowUpdated` handlers across multiple Graphs
-- Calculated field value is a simple function of other fields on the same DAC (or parent DAC)
-- Calculation is invariant — it does not depend on Graph context or user interaction
-
-**Core Transformation (Target State):**
-- For application-side calculations: use `[PXFormula(typeof(expression))]`
-- For database-side calculations: use `[PXDBCalced(typeof(expression), typeof(resultType))]`
-- Remove duplicated imperative calculation code from event handlers
-
-```csharp
-// CORRECT - Declarative formula
-[PXFormula(typeof(Mult<SOLine.orderQty, SOLine.unitPrice>))]
-[PXDBDecimal(4)]
-public virtual decimal? ExtPrice { get; set; }
-
-// CORRECT - Database-side calculation
-[PXDBCalced(typeof(
-    SOLine.orderQty.Multiply<SOLine.unitPrice>.Subtract<SOLine.discAmt>
-), typeof(decimal))]
-public virtual decimal? NetAmount { get; set; }
-
-// INCORRECT - Imperative in every Graph
-protected virtual void _(Events.FieldUpdated<SOLine, SOLine.orderQty> e)
-{
-    e.Row.ExtPrice = e.Row.OrderQty * e.Row.UnitPrice;
-}
-```
-
-**Why It Matters in Acumatica:**
-- Formulas execute consistently regardless of which Graph hosts the DAC
-- Reduces code duplication and maintenance burden
-- Architecture rules (§6.1, §6.3) mandate declarative patterns for invariant calculations
-- PXDBCalced offloads computation to the database for read-heavy scenarios
-
-**Risks / Side Effects:**
-- Complex conditional calculations may not fit formula syntax
-- Formula evaluation order matters for dependent fields
-- PXDBCalced fields are read-only
-
-**Acceptance Criteria:**
-- Invariant calculations use `[PXFormula]` or `[PXDBCalced]`
-- Imperative calculation code removed from event handlers
-- Results match the imperative calculation
-
-**Related Acumatica Mechanisms:**
-`[PXFormula]`, `[PXDBCalced]`, `Mult<>`, `Add<>`, `Sub<>`, formula operators
-
-**Common Anti-Patterns Nearby:**
-- Copy-pasted arithmetic in multiple FieldUpdated handlers
-- Calculated fields with no attribute relying entirely on event code
+Verify the path the consumer uses: an unsaved row after a dependency changes, a fresh database selection, or both when both are required.
 
 ### Category H: Workflow (REF-7XX)
 
@@ -4023,7 +3888,7 @@ For automated agent detection, the following code patterns indicate potential re
 | Persisted status/list constant value changed or reused | REF-125 |
 | Operations > 30s without PXLongOperation | REF-501 |
 | `this` captured in long operation lambda | REF-502, REF-504 |
-| SetEnabled outside RowSelected | REF-601 |
+| Row-dependent field state evaluated outside RowSelected | REF-601 |
 | Status SetValue without workflow | REF-701 |
 | Workflow-only action/status enforcement | REF-704 |
 | Repeated setup queries | REF-801 |

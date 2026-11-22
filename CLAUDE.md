@@ -1,5 +1,7 @@
 # Acumatica Application Engineer Workspace (Light)
 
+Write reusable ACW workflow instructions, skill examples, and report templates in English. Use the user's requested language for conversations and generated reports unless the deliverable specifies another language.
+
 This is a Claude Code workspace tailored for Acumatica ERP application engineering on the Projects/Construction team. It is the **light** variant: external context comes from the corporate `jira-internal`, `wiki-internal`, and `bitbucket-internal` MCP servers, read-only SQL through a local PowerShell facade, and git over a local product checkout. It provides workflow skills for support analysis, code review, spec verification, bugfixing, and feature development.
 
 ## Repository-Local MCP

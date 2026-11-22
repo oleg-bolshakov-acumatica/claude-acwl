@@ -24,7 +24,7 @@ Every retrieved SR needs a row, even when it could not be reviewed.
 JQL:
 <exact executed query>
 
-| Код | Описание | Статус | Команда | Исполнитель | Этап разбора | Root cause / уверенность | Workaround | Следующее действие | Review / актуальность | Заметка |
+| Key | Summary | Status | Team | Assignee | Analysis step | Root cause / confidence | Workaround | Next action | Review / freshness | Note |
 |---|---|---|---|---|---|---|---|---|---|---|
 | <linked key> | <Jira summary> | <live status> | <acuTeam> | <live assignee or empty> | <evidence-backed step or unknown> | <short cause; Confirmed/Likely/Unclear> | <available / not confirmed> | <one action> | <new/reused; original date; unchanged/stale/unknown> | <relative link to Jira note> |
 
@@ -57,20 +57,20 @@ Use this compact form in the final chat response for both scopes. Include one
 row for every retrieved SR, including reused and failed reviews. In `scope=all`,
 the separate Assignee column is mandatory; it may also be kept for backlog.
 Show the current display name and login when available. A confirmed empty
-assignee is `не назначен`; a missing field is `unknown`. Do not replace the
+assignee is `Unassigned`; a missing field is `unknown`. Do not replace the
 per-item table with selected highlights or the saved-report link. `fast`
 reduces wording per row, not the number of rows.
 
 ```markdown
-Scope=<all/backlog>: <count> SR; <new> новых review / <reused> переиспользованных / <failed> не разобраны.
+Scope=<all/backlog>: <count> SR; <new> new reviews / <reused> reused / <failed> not reviewed.
 
-| Код | Краткое описание | Статус | Команда | Assignee / Исполнитель | Краткий review | Следующий шаг |
+| Key | Summary | Status | Team | Assignee | Review summary | Next step |
 |---|---|---|---|---|---|---|
-| <linked key> | <short Jira summary> | <live status> | <acuTeam> | <live display name (login), не назначен or unknown> | <current step; cause and Confirmed/Likely/Unclear, or not reviewed> | <one concise action> |
+| <linked key> | <short Jira summary> | <live status> | <acuTeam> | <live display name (login), Unassigned or unknown> | <current step; cause and Confirmed/Likely/Unclear, or not reviewed> | <one concise action> |
 
 <Reuse freshness / incomplete coverage limitations, when applicable.>
 
-[Полный отчёт](<absolute workspace path to saved summary.md>)
+[Full report](<absolute workspace path to saved summary.md>)
 ```
 
 Keep each review to one short sentence or clause; label historical/unverified
