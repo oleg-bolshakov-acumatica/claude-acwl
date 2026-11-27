@@ -30,7 +30,7 @@ The bind address is `http://127.0.0.1:8765`, matching the workspace
 
 ```text
 db-proxy/
-  Start.ps1                       # foreground wrapper -> scripts/Start-DbProxyServer.ps1
+  Start.ps1                       # runs scripts/Start-LocalStack.ps1
   config/
     db-proxy.config.json          # http { baseUrl, requestTimeoutSec } + resourceProxy { serverName, logRequests }
     providers.config.json         # sql { aliases, optional allowlists, execution limits }
@@ -40,6 +40,7 @@ db-proxy/
   providers/
     Sql.Provider.psm1             # SELECT, database discovery, and schema metadata
   scripts/
+    Start-LocalStack.ps1          # opens the backend window with PowerShell -NoExit
     Start-DbProxyServer.ps1       # HTTP listener for read-only SQL operations
     Smoke-Test-DbProxy.ps1        # direct POST /invoke sql.select smoke test
 ```
@@ -54,16 +55,26 @@ no credentials are stored here.
 
 ## Running
 
-Manually (foreground, logs on stderr; Ctrl+C to stop):
+In File Explorer, right-click `db-proxy/Start.ps1` and select **Run with PowerShell**.
+The launcher opens a separate PowerShell window for the backend logs. It stays
+open after the backend script exits. Close the backend window to stop the server.
+
+From an open PowerShell session, run the same launcher:
 
 ```powershell
-db-proxy/Start.ps1
+.\db-proxy\Start.ps1
 ```
 
-Automatically: `scripts/Start-Claude.ps1` probes `/status` and, if the proxy is not
-already running, launches `scripts/Start-DbProxyServer.ps1` as a background process before
-starting Claude Code. Use `scripts/Start-Claude.ps1 -SkipProxy` to skip auto-start and
-`-ProxyOnly` to only start the proxy.
+To keep the backend in the current window instead, for example while debugging
+(logs on stderr; Ctrl+C to stop), run the server script directly:
+
+```powershell
+.\db-proxy\scripts\Start-DbProxyServer.ps1
+```
+
+If the proxy is down, `scripts/Start-Claude.ps1` calls the same launcher
+before starting Claude Code. Use `scripts/Start-Claude.ps1 -ProxyOnly`
+to start the proxy without opening Claude Code, or `-SkipProxy` to skip auto-start.
 
 Smoke test (proxy must be running):
 

@@ -66,7 +66,8 @@ private access enabled.
    scripts/Start-Claude.ps1
    ```
    This auto-starts the local `db-proxy` SQL backend (in a separate window) if it is not
-   already running, then launches Claude. Use `-SkipProxy` to skip it, or `-ProxyOnly` to
+   already running, then launches Claude. It fails fast if that endpoint is already
+   occupied by a backend other than `db-proxy-0.2.0`. Use `-SkipProxy` to skip it, or `-ProxyOnly` to
    only start the backend. (Or run `claude` yourself with this directory as the working
    directory, and start `db-proxy/Start.ps1` manually.)
 2. Validate the MCP configuration and smoke-test the local SQL facade:
