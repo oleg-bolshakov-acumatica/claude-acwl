@@ -16,7 +16,7 @@ Read [the document template](references/document-template.md) when drafting a sp
 ## Establish the design basis
 
 1. Resolve the Jira item, functional specification, relevant implementation/PR or proposed design, destination and any supplied reference page. Reuse session context rather than asking again for known inputs.
-2. Follow the repository's context-access routes: `jira-access`, `wiki-access` for reads, `bitbucket-pr-access`, and `acumatica-git-workflow` for local Git discovery. Resolve the source repository before relying on its branch or files. Use development guidance when it can clarify architecture; verify behavior in actual source.
+2. Follow the repository's context-access routes: `jira-access`, `wiki-access` for reads, `bitbucket-pr-access`, and `acumatica-git-workflow` for local Git discovery. Resolve the source repository before relying on its branch or files. When tracing an existing implementation, use the [code navigation routes](../../../docs/CODE_NAVIGATION.md#search-routes) to locate graphs, DACs, and physical tables. Use development guidance when it can clarify architecture and verify behavior in actual source.
 3. Identify whether the document describes an implementation or a proposed design. Source code establishes existing classes, signatures and schema; the functional specification establishes business requirements. Clearly identify proposed technical artifacts instead of presenting them as existing code.
 4. Inspect the reference's structure and native formatting, not only its prose. Check copied attachments and macros before reusing them; a copied diagram may belong to the original feature.
 

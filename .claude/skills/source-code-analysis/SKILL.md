@@ -116,7 +116,7 @@ When those clues are incomplete, search local source, local definitions, linked 
 
 When the owning subsystem, repository location, screen terminology, or local validation path is unclear, optionally use `acumatica-development-guidance` before broad source searches. Apply only articles matching the selected repository/project and compare them with current files before relying on them.
 
-Use `docs/CODE_NAVIGATION.md` to turn a clue into a starting path before broad searches: screen ID to classic page or Modern UI screen folder to graph type; DAC or table to the module `DAC/` folder and `DatabaseModel`; a cross-module symptom to the owning feature's `GraphExtensions/` folder; unexplained framework behavior to the platform map. The map is generated from one revision, so confirm each path exists on the inspected branch before relying on it.
+Use the [code navigation routes](../../../docs/CODE_NAVIGATION.md#search-routes) to choose a starting path before broad searches. Confirm the path and symbol on the inspected revision.
 
 Use `rg` first:
 

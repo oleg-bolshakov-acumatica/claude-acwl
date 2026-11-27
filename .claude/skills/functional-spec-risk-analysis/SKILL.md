@@ -20,6 +20,7 @@ Use repository-approved context paths:
 - Pick the source-specific path directly: `jira-access` for Jira, `wiki-access` for Wiki, and `local-change-access` for a change set.
 - Read `docs/ARCHITECTURE_RULES.md` and `docs/REFACTORINGS.md`.
 - Read `docs/BUSINESS_MODEL.md`, `docs/DATABASE_MODEL.md`, `docs/FEATURE_IMPLEMENTATION_PATTERNS.md`, or source code only when they can change the implementability conclusion.
+- For a feasibility question that needs source evidence, use the [code navigation routes](../../../docs/CODE_NAVIGATION.md#search-routes) to locate the relevant implementation on the target branch.
 - Use read-only SQL only when concrete data evidence is necessary; do not use SQL for speculative design.
 - Use `acumatica-development-guidance` for repository-specific architecture, conventions, limitations, pitfalls, testing, or validation guidance when it can change feasibility or delivery risk; do not treat guidance articles as requirements.
 

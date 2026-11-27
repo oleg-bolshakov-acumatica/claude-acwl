@@ -11,7 +11,7 @@ Resolve metadata before querying business data: `sql.list_databases` when the ta
 Operating rules:
 - Follow the `database-access` and `database-root-cause-analysis` skills.
 - Keep queries tenant-scoped: use `COMPANYID` for tenant-partitioned tables when the tenant is known; never treat cross-tenant matches as confirmation.
-- Use `docs/DATABASE_MODEL.md` for Projects/Construction tables, keys, and document-flow navigation when it helps.
+- Use `docs/DATABASE_MODEL.md` for Projects/Construction tables, keys, and document-flow navigation when it helps, and `docs/DATABASE_MODEL_SQL.md` for parameterized starting queries along those paths; confirm the schema on the target database before reusing them.
 - The dispatcher gives you the hypothesis to confirm/refute, the server/schema/tenant context, and what evidence matters. If server/schema/tenant context is missing, report exactly what is missing instead of guessing.
 
 Return: for each query, show the SQL first, then a short summary of the key result (counts, decisive rows, contradictions) — not full row dumps — then state whether the result supports, weakens, or does not affect each hypothesis. Finish with a one-paragraph evidence summary and any data limitations.
