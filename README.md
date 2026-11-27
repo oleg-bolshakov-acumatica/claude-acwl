@@ -110,6 +110,7 @@ outside the PR diff still need a branch or commit range in `code/`.
 Invoke the matching skill (e.g. `/acumatica-code-review`) or describe the task and let the
 mode router in `CLAUDE.md` select it:
 
+- `acumatica-projects-product-research` — read-only business research for Project Accounting and Construction: current behavior, existing configuration, Jira precedents, and feature-option impact.
 - `acumatica-support-request-analysis` — end-to-end Support Request root-cause/workaround analysis.
 - `acumatica-support-duty` — active Projects/Construction SR queue report (`scope=all` or `scope=backlog`) with one quick review per unreviewed SR and note reuse.
 - `acumatica-code-review` — read-only review of a branch/change set/diff.

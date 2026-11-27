@@ -34,7 +34,7 @@ Report missing prerequisites and restrict conclusions to the evidence-supported 
 
 Build a requirement-by-requirement coverage map from the latest specification. Trace each requirement through the relevant creation, editing, validation, persistence, release, inquiry/report, UI, and exposed-contract paths. Verify behavior rather than the mere presence of code; distinguish implemented, partial, missing, ambiguous, superseded, and explicitly deferred scope.
 
-When QA Acceptance issues or an equivalent artifact exist, map each relevant issue to its accepted resolution and final code path. Check related paths that implement the same operation or business rule, not only the originally reported screen or condition. Treat QA reports as evidence of observed behavior and accepted changes, not as independent authority to redefine the specification. Keep external dependencies and user-approved deferrals visible without repeatedly proposing them as new fixes.
+When QA Acceptance issues or an equivalent artifact exist, map each relevant issue to its recorded resolution and final code path. Check other supported paths that implement the same operation or rule. For QA and test results that affect the verdict, identify the scenario, tested build or commit, and relevant settings. Carry earlier results forward when the exercised behavior and settings still apply. Use issue status to locate the disposition and verify a claimed fix against the reviewed revision. Apply only accepted amendments when QA feedback changes a requirement. Keep external dependencies and approved deferrals visible.
 
 ### Trace Implemented Restrictions and Messages Back to Requirements
 
@@ -122,6 +122,8 @@ Complete both passes before forming the verdict. For each applicable technical a
 
 On a repeat review, revalidate previous findings and pending corrections against the current tree and accepted decisions. State which corrections are valid, incomplete, or need revision, withdraw disproved findings, and provide one consolidated remaining remediation list rather than stacking successive reports.
 
+Challenge conclusions that could change the verdict. For critical behavior, trace a plausible counterexample through a supported path. For a consequential finding, check whether an existing guard, platform behavior, or accepted scope decision invalidates it. Resolve questions through available evidence first. If a business decision is still needed for the verdict, ask one focused question at a time, recommend an answer, and explain what turns on the choice.
+
 Use targeted validation appropriate to the risk and the user's constraints. Distinguish static inspection, syntax parsing, semantic compilation, automated tests, and runtime evidence. Never present one as proof of another. Identify material unverified scenarios without requiring broad builds or speculative tests merely to complete a checklist.
 
 Use `acumatica-session-notes` to save or update the final review report in the Jira item's notes, normally `feature-final-review.md`. Record exact review inputs, decisive evidence, accepted decisions, remaining questions, and validation limits. When the review is partial, identify which required versions or inputs are missing in the report.
@@ -138,4 +140,4 @@ Write in the user's requested language. Keep the report compact and actionable:
 
 Order actionable findings by severity within their pass and follow `acumatica-code-review` evidence conventions. Include decisive `path/to/File.ext:line` references, a short excerpt where needed, the applicable requirement or rule, impact, a bounded correction, a verified analogue where applicable, and a validation scenario.
 
-Report design questions as questions requiring resolution, and optional simplifications as optional. Review completion requires an evidence-supported conclusion for the agreed scope; the number of findings is not a completion criterion.
+For a confirmed defect, give the required correction. For a material unverified risk, give a focused check and its expected result. State which open decisions affect the verdict and label optional simplifications. Base review completion on evidence for the agreed scope.
