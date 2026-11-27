@@ -180,14 +180,14 @@ dumps) out of the main window:
 ## Safety model
 
 This workspace is read-only by default. Read-only MCP servers and read-only git commands
-are pre-approved in `.claude/settings.json` (Git branch/remote commands only in their read-only forms; `wiki-internal` write tools are listed under `ask` so they always prompt); every non-read-only git operation (including
+are pre-approved in `.claude/settings.json` (Git branch/remote commands only in their read-only forms). Among `wiki-internal` write tools, only the page-update tools `confluence_update_page` and `confluence_update_page_section` are pre-approved, so authorized technical-specification revisions run without repeated prompts; the other write tools are listed under `ask` so they always prompt. Every non-read-only git operation (including
 `git fetch`) requires explicit confirmation per `acumatica-git-workflow`. A `PreToolUse`
 hook (`scripts/hooks/Guard-Sql.ps1`) rejects any non-`SELECT` SQL as defense-in-depth (the
 `db-proxy` backend is the primary enforcer). The write-capable modes
-(`acumatica-small-bugfix`, `acumatica-bug-backport`, `acumatica-feature-development`) and Wiki
-publication in `acumatica-technical-specification` are
-intentionally *not* pre-approved and follow the approval rules in their skills and in
-`CLAUDE.md`.
+(`acumatica-small-bugfix`, `acumatica-bug-backport`, `acumatica-feature-development`) are
+intentionally *not* pre-approved, and Wiki publication in `acumatica-technical-specification`
+requires the user's scoped publication request or approval; all of them follow the approval
+rules in their skills and in `CLAUDE.md`.
 
 ## Local SQL backend (db-proxy)
 

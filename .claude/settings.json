@@ -71,8 +71,6 @@
       "mcp__wiki-internal__confluence_delete_page",
       "mcp__wiki-internal__confluence_move_page",
       "mcp__wiki-internal__confluence_reply_to_comment",
-      "mcp__wiki-internal__confluence_update_page",
-      "mcp__wiki-internal__confluence_update_page_section",
       "mcp__wiki-internal__confluence_upload_attachment",
       "mcp__wiki-internal__confluence_upload_attachments"
     ],
