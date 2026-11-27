@@ -61,16 +61,26 @@ private access enabled.
 
 ## Getting started
 
-1. Start Claude Code from the workspace root so the relative MCP startup paths resolve:
+1. SQL tools need the local `db-proxy` backend. Start it once from the workspace root and
+   leave its window open. It serves every session until you close the window or sign out
+   of Windows. Skip this step when the task does not use SQL.
    ```powershell
-   scripts/Start-Claude.ps1
+   .\db-proxy\Start.ps1
    ```
-   This auto-starts the local `db-proxy` SQL backend (in a separate window) if it is not
-   already running, then launches Claude. It fails fast if that endpoint is already
-   occupied by a backend other than `db-proxy-0.2.0`. Use `-SkipProxy` to skip it, or `-ProxyOnly` to
-   only start the backend. (Or run `claude` yourself with this directory as the working
-   directory, and start `db-proxy/Start.ps1` manually.)
-2. Validate the MCP configuration and smoke-test the local SQL facade:
+   You can also right-click `db-proxy/Start.ps1` in File Explorer and select
+   **Run with PowerShell**. If you start the backend after Claude Code, retry the SQL
+   request; Claude Code does not need a restart.
+2. Start Claude Code from the workspace root as usual, so the relative MCP startup paths
+   in `.mcp.json` resolve:
+   ```powershell
+   claude
+   ```
+   `scripts/Start-Claude.ps1` is an optional launcher that combines both steps. It starts
+   `db-proxy` if `http://127.0.0.1:8765/status` is not responding, fails fast if that
+   endpoint is occupied by a backend other than `db-proxy-0.2.0`, and launches Claude Code
+   from the workspace root. Use `-SkipProxy` to skip the backend step or `-ProxyOnly` to
+   start the backend without opening Claude Code.
+3. Validate the MCP configuration and smoke-test the local SQL facade:
    ```powershell
    scripts/Check-Mcp.ps1                  # full check (needs the local SQL backend running)
    scripts/Check-Mcp.ps1 -SkipSmokeTest   # config-only check
@@ -79,7 +89,7 @@ private access enabled.
    scripts/Smoke-Test-Sql-Discovery.ps1   # exercise the database/schema metadata tools
    scripts/Test-SqlProvider.ps1           # provider-level safety and parameter unit checks
    ```
-3. In Claude Code, run `/mcp` to confirm all five servers are connected. If any are
+4. In Claude Code, run `/mcp` to confirm all five servers are connected. If any are
    missing, treat it as a configuration or backend-availability issue (see `CLAUDE.md`),
    not a reason to bypass the approved paths.
 

@@ -70,8 +70,8 @@ function Invoke-StdioSmokeTest {
 }
 
 # Informational probe of the local db-proxy SQL backend (does not fail the check;
-# the proxy may legitimately be down at config-check time and is auto-started by
-# Start-Claude.ps1 before a session).
+# the proxy may legitimately be down at config-check time; the user starts it
+# separately with db-proxy/Start.ps1).
 $dbProxyConfigPath = Join-Path $projectRoot "db-proxy/config/db-proxy.config.json"
 if (Test-Path -LiteralPath $dbProxyConfigPath) {
     $dbProxyConfig = Get-Content -LiteralPath $dbProxyConfigPath -Raw | ConvertFrom-Json
@@ -91,7 +91,7 @@ if (Test-Path -LiteralPath $dbProxyConfigPath) {
         }
     }
     catch {
-        Write-Host ("[db   ] {0,-22} -> /status not reachable on {1} (start db-proxy/Start.ps1 or use scripts/Start-Claude.ps1)" -f "db-proxy", $dbProxyBaseUrl)
+        Write-Host ("[db   ] {0,-22} -> /status not reachable on {1} (start it with db-proxy/Start.ps1)" -f "db-proxy", $dbProxyBaseUrl)
     }
 }
 

@@ -65,16 +65,16 @@ From an open PowerShell session, run the same launcher:
 .\db-proxy\Start.ps1
 ```
 
+Start the backend once and keep its window open; every session reuses it, and
+SQL calls succeed again without a client restart once it is up. The optional
+`scripts/Start-Claude.ps1` launcher calls the same script when the proxy is down.
+
 To keep the backend in the current window instead, for example while debugging
 (logs on stderr; Ctrl+C to stop), run the server script directly:
 
 ```powershell
 .\db-proxy\scripts\Start-DbProxyServer.ps1
 ```
-
-If the proxy is down, `scripts/Start-Claude.ps1` calls the same launcher
-before starting Claude Code. Use `scripts/Start-Claude.ps1 -ProxyOnly`
-to start the proxy without opening Claude Code, or `-SkipProxy` to skip auto-start.
 
 Smoke test (proxy must be running):
 
