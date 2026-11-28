@@ -4,10 +4,10 @@ param()
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
-# Light DB proxy: a read-only SQL-only backend for the powershell-mcp-facade.
-# It speaks the same HTTP contract the facade expects (POST /invoke with
-# {operation, arguments}; GET /status; GET /health) but exposes only the
-# sql.select operation. Jira/Wiki/Bitbucket providers are intentionally absent.
+# DB proxy: a read-only SQL backend for the powershell-mcp-facade.
+# It speaks the HTTP contract the facade expects (POST /invoke with
+# {operation, arguments}; GET /status; GET /health) and exposes only
+# read-only SQL operations.
 
 Import-Module (Join-Path $PSScriptRoot "..\core\ResourceProxyTransport.psm1") -Force -Global
 Import-Module (Join-Path $PSScriptRoot "..\providers\Sql.Provider.psm1") -Force -Global

@@ -4,7 +4,7 @@ $ErrorActionPreference = "Stop"
 Import-Module (Join-Path $PSScriptRoot "BackendClient.psm1") -Force
 Import-Module (Join-Path $PSScriptRoot "Errors.psm1") -Force
 
-# Light workspace (claude-acwl): this facade exposes only read-only SQL tools.
+# This facade exposes only read-only SQL tools.
 # Jira/Wiki access lives on the corporate jira-internal / wiki-internal MCP
 # servers, pull requests on bitbucket-internal, and branch / commit-range diffs
 # come from git over the local code/ repo.

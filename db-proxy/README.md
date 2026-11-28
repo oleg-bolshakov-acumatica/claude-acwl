@@ -1,15 +1,14 @@
 # db-proxy - read-only SQL backend for the MCP facade
 
-A light, SQL-only backend for the `powershell-mcp-facade` stdio MCP server in this
-workspace. It is the trimmed successor of the full resource proxy backend: it keeps the
-exact same HTTP contract the facade expects, but exposes **only** read-only SQL.
+A SQL-only backend for the `powershell-mcp-facade` stdio MCP server in this
+workspace. It exposes **only** read-only SQL over the localhost HTTP contract that the
+facade expects.
 
 ## What it is
 
 The facade (`db-mcp/core/BackendClient.psm1`) forwards read-only SQL tool calls to this proxy
 over localhost HTTP. This proxy uses `System.Data.SqlClient` with integrated authentication
-for bounded reads and metadata discovery. Jira/Wiki/Bitbucket providers from the full proxy
-are intentionally absent.
+for bounded reads and metadata discovery.
 
 ## Why a separate process
 
@@ -100,8 +99,8 @@ db-proxy/scripts/Test-SqlProvider.ps1                   # read-only guard unit c
 
 ## Notes
 
-- Only one process can bind `127.0.0.1:8765`. The light `db-proxy` and any other local
-  proxy using that port are mutually exclusive; `Start.ps1` does not start a second one if
+- Only one process can bind `127.0.0.1:8765`. `db-proxy` and any other local
+  service using that port are mutually exclusive; `Start.ps1` does not start a second one if
   `/status` already responds.
 - Configuration knobs live in `db-proxy/config/providers.config.json` (`sql` block): change
   `defaultServer`, add `aliases`, optionally configure server/database allowlists, or adjust

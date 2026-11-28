@@ -1,6 +1,6 @@
 ---
 name: wiki-access
-description: Use this skill when the user asks to retrieve, inspect, or interpret Acumatica Wiki pages or wiki.acumatica.com links. In this light workspace Wiki is read through the corporate wiki-internal (Confluence) HTTP MCP server.
+description: Use this skill when the user asks to retrieve, inspect, or interpret Acumatica Wiki pages or wiki.acumatica.com links. In this workspace Wiki is read through the corporate wiki-internal (Confluence) HTTP MCP server.
 ---
 
 # Acumatica Wiki Access Skill

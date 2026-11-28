@@ -1,28 +1,14 @@
-# claude-acwl — Acumatica Application Engineer Workspace, Light (Claude Code)
+# claude-acwl — Acumatica Application Engineer Workspace (Claude Code)
 
 A self-contained Claude Code workspace for Acumatica ERP application engineering on the
-Projects/Construction team. This is the **light** variant: external context comes from the
-corporate `jira-internal`, `wiki-internal`, and `bitbucket-internal` MCP servers,
-read-only SQL through a local PowerShell facade, and git over a local product checkout.
-It provides workflow skills for support analysis, code review, spec verification,
-bugfixing, and feature development.
+Projects/Construction team. External context comes from the corporate `jira-internal`,
+`wiki-internal`, and `bitbucket-internal` MCP servers, read-only SQL through a local
+PowerShell facade, and git over a local product checkout. It provides workflow skills for
+support analysis, code review, spec verification, bugfixing, and feature development.
 
 The operating contract for the agent lives in [`CLAUDE.md`](CLAUDE.md); it is loaded
 automatically by Claude Code. This README is for humans setting up and maintaining the
 workspace.
-
-## What "light" changes vs. the pro workspace (`claude-acw`)
-
-- The `powershell-mcp-facade` is trimmed to **read-only SQL only**: bounded select, database
-  discovery, and schema metadata. It no longer exposes Jira, Wiki, Bitbucket, or
-  `context.get_reference` tools.
-- Jira and Wiki are read through the corporate **`jira-internal`** and **`wiki-internal`**
-  HTTP MCP servers (now the primary path, not a fallback).
-- **RAG Memory is removed** (no `rag-memory` server, no `rag-proxy` backend, no RAG skills).
-- Pull requests are read through the corporate **`bitbucket-internal`** HTTP MCP server via
-  the `bitbucket-pr-access` skill; branches and commit ranges are inspected with **git over
-  the local `code/` repository** via the `local-change-access` skill.
-- The `db-proxy` backend for SQL (`127.0.0.1:8765`) keeps the same HTTP protocol.
 
 ## Layout
 
@@ -194,12 +180,11 @@ rules in their skills and in `CLAUDE.md`.
 
 ## Local SQL backend (db-proxy)
 
-The SQL path is served by `db-proxy/`, a light SQL-only backend that keeps the original
-resource-proxy HTTP contract (`POST /invoke`, `GET /status`) but drops the
-Jira/Wiki/Bitbucket providers. Beyond `sql.select` it serves `sql.list_databases`,
+The SQL path is served by `db-proxy/`, a SQL-only backend with a small localhost HTTP
+contract (`POST /invoke`, `GET /status`). Besides `sql.select` it serves `sql.list_databases`,
 `sql.search_schema`, and `sql.describe_table`. It binds `127.0.0.1:8765`, matching
 `db-mcp/config/server.config.json`, so the facade connects unchanged. Read-only `SELECT` is
 enforced in `db-proxy/providers/Sql.Provider.psm1` and again by the `Guard-Sql.ps1` hook.
 See `db-proxy/README.md` for details. SQL runs through `System.Data.SqlClient` under the
-current Windows identity, so `SQLPS`/`Invoke-Sqlcmd` is no longer required and no SQL
+current Windows identity, so `SQLPS`/`Invoke-Sqlcmd` is not required and no SQL
 credentials are stored in this workspace.

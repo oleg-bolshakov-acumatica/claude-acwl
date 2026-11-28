@@ -10,7 +10,7 @@ param(
 #   - .mcp.json is parsed and every declared server is reported.
 #   - the stdio server (powershell-mcp-facade) gets an initialize + tools/list
 #     smoke test; the returned tool catalog is verified against the expected
-#     trimmed tool set (the read-only sql.* tools plus
+#     tool set (the read-only sql.* tools plus
 #     server.describe_capabilities).
 #   - http servers (acumatica-development-guidance, jira-internal, wiki-internal,
 #     bitbucket-internal) are reported only; their connectivity/OAuth is handled
@@ -43,7 +43,7 @@ function Invoke-StdioSmokeTest {
     )
 
     $request = @(
-        '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"claude-acw-check","version":"0"}}}',
+        '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"claude-acwl-check","version":"0"}}}',
         '{"jsonrpc":"2.0","method":"notifications/initialized","params":{}}',
         '{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}'
     ) -join [Environment]::NewLine

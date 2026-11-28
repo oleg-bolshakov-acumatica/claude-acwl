@@ -1,6 +1,6 @@
 ---
 name: jira-similar-search
-description: Use this skill when the user wants to find similar Bug or SupportRequest issues in Jira. In this light workspace similarity is agent-driven JQL search through the corporate jira-internal HTTP MCP server, ranked locally by the agent.
+description: Use this skill when the user wants to find similar Bug or SupportRequest issues in Jira. In this workspace similarity is agent-driven JQL search through the corporate jira-internal HTTP MCP server, ranked locally by the agent.
 ---
 
 # Jira Similar Search Skill

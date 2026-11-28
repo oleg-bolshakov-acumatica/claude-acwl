@@ -1,6 +1,6 @@
 ---
 name: jira-access
-description: Use this skill when the user asks to retrieve or inspect Jira issue data. In this light workspace Jira is read through the corporate jira-internal HTTP MCP server.
+description: Use this skill when the user asks to retrieve or inspect Jira issue data. In this workspace Jira is read through the corporate jira-internal HTTP MCP server.
 ---
 
 # Jira Access Skill
