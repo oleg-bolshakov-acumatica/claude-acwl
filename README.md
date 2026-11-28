@@ -34,10 +34,9 @@ claude-acwl/
     settings.json           Read-only permission allowlist + SQL read-only guard hook.
     skills/                 Workflow and access skills (one folder per skill).
     agents/                 Read-only investigation subagents (parallel tracks, context isolation).
-  core/                     PowerShell modules for the powershell-mcp-facade stdio server (SQL only).
-  config/server.config.json Facade server + backend configuration.
+    hooks/                  Guard-Sql.ps1, the PreToolUse SQL read-only guard.
+  db-mcp/                   powershell-mcp-facade stdio MCP server (SQL only), its config, and Check-Mcp.ps1.
   db-proxy/                 Local read-only SQL backend for the facade (HTTP on 127.0.0.1:8765).
-  scripts/                  Startup, health-check, hook, and smoke-test scripts.
   docs/                     Architecture/business/database/feature docs + Acuminator (PX####) reference.
   .session-notes/           Per-Jira-item handoff notes (git-ignored).
   code/                     Local Acumatica product checkout (git-ignored; populated separately).
@@ -75,19 +74,12 @@ private access enabled.
    ```powershell
    claude
    ```
-   `scripts/Start-Claude.ps1` is an optional launcher that combines both steps. It starts
-   `db-proxy` if `http://127.0.0.1:8765/status` is not responding, fails fast if that
-   endpoint is occupied by a backend other than `db-proxy-0.2.0`, and launches Claude Code
-   from the workspace root. Use `-SkipProxy` to skip the backend step or `-ProxyOnly` to
-   start the backend without opening Claude Code.
 3. Validate the MCP configuration and smoke-test the local SQL facade:
    ```powershell
-   scripts/Check-Mcp.ps1                  # full check (needs the local SQL backend running)
-   scripts/Check-Mcp.ps1 -SkipSmokeTest   # config-only check
-   scripts/Smoke-Test-Mcp-Contract.ps1    # assert the facade's SQL tool catalog
-   scripts/Smoke-Test-Sql.ps1             # exercise sql.select end-to-end (needs the backend)
-   scripts/Smoke-Test-Sql-Discovery.ps1   # exercise the database/schema metadata tools
-   scripts/Test-SqlProvider.ps1           # provider-level safety and parameter unit checks
+   db-mcp/scripts/Check-Mcp.ps1                  # config, facade smoke test, backend probe
+   db-mcp/scripts/Check-Mcp.ps1 -SkipSmokeTest   # config-only check
+   db-proxy/scripts/Smoke-Test-DbProxy.ps1       # sql.select directly against the running backend
+   db-proxy/scripts/Test-SqlProvider.ps1         # read-only guard and parameter unit checks
    ```
 4. In Claude Code, run `/mcp` to confirm all five servers are connected. If any are
    missing, treat it as a configuration or backend-availability issue (see `CLAUDE.md`),
@@ -193,7 +185,7 @@ dumps) out of the main window:
 This workspace is read-only by default. Read-only MCP servers and read-only git commands
 are pre-approved in `.claude/settings.json` (Git branch/remote commands only in their read-only forms). Among `wiki-internal` write tools, only the page-update tools `confluence_update_page` and `confluence_update_page_section` are pre-approved, so authorized technical-specification revisions run without repeated prompts; the other write tools are listed under `ask` so they always prompt. Every non-read-only git operation (including
 `git fetch`) requires explicit confirmation per `acumatica-git-workflow`. A `PreToolUse`
-hook (`scripts/hooks/Guard-Sql.ps1`) rejects any non-`SELECT` SQL as defense-in-depth (the
+hook (`.claude/hooks/Guard-Sql.ps1`) rejects any non-`SELECT` SQL as defense-in-depth (the
 `db-proxy` backend is the primary enforcer). The write-capable modes
 (`acumatica-small-bugfix`, `acumatica-bug-backport`, `acumatica-feature-development`) are
 intentionally *not* pre-approved, and Wiki publication in `acumatica-technical-specification`
@@ -206,7 +198,7 @@ The SQL path is served by `db-proxy/`, a light SQL-only backend that keeps the o
 resource-proxy HTTP contract (`POST /invoke`, `GET /status`) but drops the
 Jira/Wiki/Bitbucket providers. Beyond `sql.select` it serves `sql.list_databases`,
 `sql.search_schema`, and `sql.describe_table`. It binds `127.0.0.1:8765`, matching
-`config/server.config.json`, so the facade connects unchanged. Read-only `SELECT` is
+`db-mcp/config/server.config.json`, so the facade connects unchanged. Read-only `SELECT` is
 enforced in `db-proxy/providers/Sql.Provider.psm1` and again by the `Guard-Sql.ps1` hook.
 See `db-proxy/README.md` for details. SQL runs through `System.Data.SqlClient` under the
 current Windows identity, so `SQLPS`/`Invoke-Sqlcmd` is no longer required and no SQL

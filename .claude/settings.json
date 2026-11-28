@@ -79,11 +79,11 @@
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "mcp__powershell-mcp-facade__sql",
+        "matcher": "mcp__powershell-mcp-facade__sql_.*",
         "hooks": [
           {
             "type": "command",
-            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/hooks/Guard-Sql.ps1"
+            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File .claude/hooks/Guard-Sql.ps1"
           }
         ]
       }

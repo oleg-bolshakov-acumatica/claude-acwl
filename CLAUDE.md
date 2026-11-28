@@ -25,10 +25,10 @@ The project MCP servers are declared natively in `.mcp.json` at the workspace ro
 
 If `/mcp` does not show all expected servers, treat it as an MCP configuration or backend-availability problem, not a reason to bypass the approved paths:
 
-- `powershell-mcp-facade` is a stdio facade over the local `db-proxy` backend at `http://127.0.0.1:8765` (see `db-proxy/`). The user starts `db-proxy` once with `db-proxy/Start.ps1`, and it keeps running in its own window across sessions; the optional `scripts/Start-Claude.ps1` launcher also starts it when needed. The server can fail SQL tool calls when that backend is not running; handle such failures as backend availability issues. SQL calls work again once the backend is up, without a client restart.
+- `powershell-mcp-facade` (`db-mcp/`) is a stdio facade over the local `db-proxy` backend at `http://127.0.0.1:8765` (`db-proxy/`). The user starts `db-proxy` once with `db-proxy/Start.ps1`, and it keeps running in its own window across sessions. The server can fail SQL tool calls when that backend is not running; handle such failures as backend availability issues. SQL calls work again once the backend is up, without a client restart.
 - `acumatica-development-guidance`, `jira-internal`, `wiki-internal`, and `bitbucket-internal` are remote HTTP MCP servers that require OAuth on first use and are only reachable from the Acumatica corporate network with private access enabled.
 
-Run `scripts/Check-Mcp.ps1` to validate the MCP configuration, smoke-test the local SQL facade, and probe the `db-proxy` backend. Do not manually launch the facade as a bootstrap step; let Claude Code manage the declared servers.
+Run `db-mcp/scripts/Check-Mcp.ps1` to validate the MCP configuration, smoke-test the local SQL facade, and probe the `db-proxy` backend. Do not manually launch the facade as a bootstrap step; let Claude Code manage the declared servers.
 
 This workspace is read-only by default. Local source/Git changes are allowed only in the bugfix, feature-development, and backport modes under their approval rules. Read-only MCP tools and read-only git commands are pre-approved in `.claude/settings.json`; safety guardrails there are a convenience, not a substitute for the safety rules below.
 

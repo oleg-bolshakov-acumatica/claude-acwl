@@ -20,7 +20,7 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
-$projectRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
+$projectRoot = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
 $mcpPath = Join-Path $projectRoot ".mcp.json"
 $expectedDbProxyBackendVersion = "db-proxy-0.2.0"
 

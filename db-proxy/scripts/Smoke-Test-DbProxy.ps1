@@ -12,9 +12,8 @@ param(
 # and asserts the response implements the bounded SQL result contract.
 # Also probes GET /status first.
 #
-# REQUIRES the DB proxy running (start it with db-proxy/Start.ps1 or let
-# scripts/Start-Claude.ps1 auto-start it). The default query (SELECT 1 AS one)
-# is harmless and read-only; override -Server/-Database/-Query to hit a real DB:
+# REQUIRES the DB proxy running (start it with db-proxy/Start.ps1).
+# The default query (SELECT 1 AS one) is harmless and read-only; override -Server/-Database/-Query to hit a real DB:
 #   .\Smoke-Test-DbProxy.ps1 -Database MyDb -Query "SELECT TOP 1 * FROM COMPANY"
 
 Set-StrictMode -Version Latest

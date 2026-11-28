@@ -33,4 +33,4 @@ If Jira does not provide enough coordinates for a numeric PR ID, ask for a PR UR
 
 ## Failure Handling
 
-If `jira-internal` is unavailable or incomplete, report the missing context and its effect on confidence. Treat absence from `/mcp`, OAuth failure, or network failure as MCP configuration/authentication/private-network availability issues. Run `scripts/Check-Mcp.ps1` when useful; do not bypass the approved path.
+If `jira-internal` is unavailable or incomplete, report the missing context and its effect on confidence. Treat absence from `/mcp`, OAuth failure, or network failure as MCP configuration/authentication/private-network availability issues. Run `db-mcp/scripts/Check-Mcp.ps1` when useful; do not bypass the approved path.

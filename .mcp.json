@@ -7,7 +7,7 @@
         "-ExecutionPolicy",
         "RemoteSigned",
         "-File",
-        "scripts/Start-McpServer.ps1"
+        "db-mcp/scripts/Start-McpServer.ps1"
       ]
     },
     "acumatica-development-guidance": {

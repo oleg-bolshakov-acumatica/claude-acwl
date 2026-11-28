@@ -6,10 +6,22 @@ exact same HTTP contract the facade expects, but exposes **only** read-only SQL.
 
 ## What it is
 
-The facade (`core/BackendClient.psm1`) forwards read-only SQL tool calls to this proxy
+The facade (`db-mcp/core/BackendClient.psm1`) forwards read-only SQL tool calls to this proxy
 over localhost HTTP. This proxy uses `System.Data.SqlClient` with integrated authentication
 for bounded reads and metadata discovery. Jira/Wiki/Bitbucket providers from the full proxy
 are intentionally absent.
+
+## Why a separate process
+
+The backend runs in a PowerShell window that the user starts, not inside a process
+spawned by the agent client. SQL Server is reached with Windows integrated
+authentication, so the connection must use the user's own interactive token. A process
+launched by an agent client inherits that client's security context, such as a sandbox
+with a restricted token, a separate account, or network limits, and MSSQL authentication
+or authorization can then fail or use another identity. A user-started backend keeps the
+identity predictable regardless of how each client starts MCP servers; the facade only
+needs localhost HTTP. The facade's in-process backend mode (`backend.mode` in
+`db-mcp/config/server.config.json`) is for development and tests only.
 
 ## HTTP contract
 
@@ -22,8 +34,8 @@ Supported operations: `ping`, `get_status`, `sql.select`, `sql.list_databases`,
 `sql.search_schema`, and `sql.describe_table`. Any other operation returns
 `unknown_operation`.
 
-The bind address is `http://127.0.0.1:8765`, matching the workspace
-`config/server.config.json`
+The bind address is `http://127.0.0.1:8765`, matching the facade's
+`db-mcp/config/server.config.json`
 (`backend.http.baseUrl`) so the facade connects with no further changes.
 
 ## Layout
@@ -40,16 +52,17 @@ db-proxy/
   providers/
     Sql.Provider.psm1             # SELECT, database discovery, and schema metadata
   scripts/
-    Start-LocalStack.ps1          # opens the backend window with PowerShell -NoExit
+    Start-LocalStack.ps1          # checks /status, then opens the backend window (-NoExit)
     Start-DbProxyServer.ps1       # HTTP listener for read-only SQL operations
     Smoke-Test-DbProxy.ps1        # direct POST /invoke sql.select smoke test
+    Test-SqlProvider.ps1          # read-only guard and parameter unit checks (no database)
 ```
 
 ## Read-only enforcement
 
 `Sql.Provider.psm1` (`Test-SqlSelectSafety`) allows a single `SELECT` statement only and
 rejects multiple statements, `SELECT INTO`, and write/administrative keywords.
-This mirrors the workspace's `PreToolUse` SQL guard hook (`scripts/hooks/Guard-Sql.ps1`),
+This mirrors the workspace's `PreToolUse` SQL guard hook (`.claude/hooks/Guard-Sql.ps1`),
 giving defense-in-depth. SQL runs under the current Windows identity (integrated auth);
 no credentials are stored here.
 
@@ -66,8 +79,9 @@ From an open PowerShell session, run the same launcher:
 ```
 
 Start the backend once and keep its window open; every session reuses it, and
-SQL calls succeed again without a client restart once it is up. The optional
-`scripts/Start-Claude.ps1` launcher calls the same script when the proxy is down.
+SQL calls succeed again without a client restart once it is up. If the backend
+already responds, the launcher only reports that. If another service answers
+`/status` with a different `backendVersion`, it stops with an error.
 
 To keep the backend in the current window instead, for example while debugging
 (logs on stderr; Ctrl+C to stop), run the server script directly:
@@ -76,19 +90,19 @@ To keep the backend in the current window instead, for example while debugging
 .\db-proxy\scripts\Start-DbProxyServer.ps1
 ```
 
-Smoke test (proxy must be running):
+Checks:
 
 ```powershell
-db-proxy/scripts/Smoke-Test-DbProxy.ps1                 # SELECT 1
+db-proxy/scripts/Smoke-Test-DbProxy.ps1                 # SELECT 1 through the running backend
 db-proxy/scripts/Smoke-Test-DbProxy.ps1 -Database MyDb -Query "SELECT TOP 1 * FROM COMPANY"
-powershell -NoProfile -ExecutionPolicy Bypass -File scripts/Smoke-Test-Sql-Discovery.ps1
+db-proxy/scripts/Test-SqlProvider.ps1                   # read-only guard unit checks; no backend needed
 ```
 
 ## Notes
 
 - Only one process can bind `127.0.0.1:8765`. The light `db-proxy` and any other local
-  proxy using that port are mutually exclusive; the auto-start logic does not start a second
-  one if `/status` already responds.
+  proxy using that port are mutually exclusive; `Start.ps1` does not start a second one if
+  `/status` already responds.
 - Configuration knobs live in `db-proxy/config/providers.config.json` (`sql` block): change
   `defaultServer`, add `aliases`, optionally configure server/database allowlists, or adjust
   the execution limits. Empty allowlists intentionally allow arbitrary SQL Server and database names.

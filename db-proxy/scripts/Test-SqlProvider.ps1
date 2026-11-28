@@ -4,8 +4,7 @@ param()
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
-$projectRoot = Split-Path -Parent $PSScriptRoot
-$sqlModule = Import-Module (Join-Path $projectRoot "db-proxy/providers/Sql.Provider.psm1") -Force -PassThru
+$sqlModule = Import-Module (Join-Path $PSScriptRoot "..\providers\Sql.Provider.psm1") -Force -PassThru
 
 $safetyCases = @(
     @{ name = "simple"; query = "SELECT 1;"; valid = $true },
